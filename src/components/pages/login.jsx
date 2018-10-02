@@ -3,10 +3,9 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
-import "../style/index.css";
-import axios, { AxiosResponse } from "axios";
-// import {requestUrl} from "../global.js";
-const requestUrl = `http://47.107.68.125:8088/`;
+import Alert from "../plugin/alert";
+import api from "../../api/index";
+import qs from "qs";
 const styles = theme => ({
   container: {
     display: "block",
@@ -33,7 +32,8 @@ const styles = theme => ({
 class Login extends React.Component {
   state = {
     studentId: ``,
-    passWord: ``
+    passWord: ``,
+    perfectInfoStatus: false
   };
   studentIdInput = event => {
     this.setState({
@@ -45,32 +45,41 @@ class Login extends React.Component {
       passWord: event.target.value
     });
   };
+  perfectInfoHandle = () => {
+    if (this.state.perfectInfoStatus) {
+      this.setState({
+        perfectInfoStatus: false
+      });
+    }
+  };
+  isUsernameAndPasswordNotEmpty() {
+    return this.state.studentId && this.state.passWord;
+  }
   loginRequest = () => {
-    console.log(requestUrl);
-    // fetch(`${requestUrl}v1/tokens`,{})
-    axios
-      .post(`${requestUrl}v1/tokens`, {
-        body: {
-          username: this.state.studentId,
-          password: this.state.passWord
-        },
-        // withCredentials: true,
-        headers: {
-          "Access-Control-Allow-Origin": "http://47.107.68.125:8088"
-          // "Access-Control-Allow-Headers": "Content-Type"
-          // "content-type": "application/json",
-          // "Access-Control-Request-Method": "*"
-        }
-        // mode: "no-cors"
-      })
-      .then(response => console.log(response));
-    // .then(response => response.json())
-    // .then(res => console.log(res));
+    if (!this.isUsernameAndPasswordNotEmpty()) {
+      this.setState({
+        perfectInfoStatus: true
+      });
+    } else {
+      this.setState({
+        perfectInfoStatus: false
+      });
+      const { studentId, passWord } = this.state;
+      const loginInfo = { username: studentId, password: passWord };
+      api.login(qs.stringify(loginInfo));
+    }
   };
   render() {
     const { classes } = this.props;
     return (
       <div className="container content-container">
+        {this.state.perfectInfoStatus ? (
+          <Alert
+            hintMessage="账号或密码未填写"
+            open={this.state.perfectInfoStatus}
+            callBack={this.perfectInfoHandle}
+          />
+        ) : null}
         <h2>登录</h2>
         <div className="form-container">
           <form className={classes.container} noValidate autoComplete="off">

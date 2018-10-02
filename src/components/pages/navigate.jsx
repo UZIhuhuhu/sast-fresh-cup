@@ -1,5 +1,5 @@
 import React from "react";
-import "../style/index.css";
+import "../../style/index.css";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import AppBar from "@material-ui/core/AppBar";
@@ -10,7 +10,7 @@ import IconButton from "@material-ui/core/IconButton";
 import Register from "./register";
 import Notice from "./notice";
 import Login from "./login";
-import HomePage from "./homepage";
+import Homepage from "./homepage";
 const styles = {
   root: {
     flexGrow: 1
@@ -77,7 +77,7 @@ class Navigate extends React.Component {
             </Button>
           </Toolbar>
         </AppBar>
-        {this.state.navigateIndex === `homepage` ? <HomePage /> : null}
+        {this.state.navigateIndex === `homepage` ? <Homepage /> : null}
         {this.state.navigateIndex === `login` ? <Login /> : null}
         {this.state.navigateIndex === `register` ? <Register /> : null}
         {this.state.navigateIndex === `notice` ? <Notice /> : null}
