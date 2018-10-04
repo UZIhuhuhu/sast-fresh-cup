@@ -6,6 +6,10 @@ import Button from "@material-ui/core/Button";
 import Alert from "../plugin/alert";
 import api from "../../api/index";
 import qs from "qs";
+import "../../config";
+// import { createStore } from "redux";
+// const store = createStore();
+// const state = store.getState();
 const styles = theme => ({
   container: {
     display: "block",
@@ -33,16 +37,20 @@ class Login extends React.Component {
   state = {
     studentId: ``,
     passWord: ``,
-    perfectInfoStatus: false
+    perfectInfoStatus: false,
+    loginErrorMessage: ``,
+    loginErrorStatus: false
   };
   studentIdInput = event => {
+    const { value } = event.target;
     this.setState({
-      studentId: event.target.value
+      studentId: value
     });
   };
   passWordInput = event => {
+    const { value } = event.target;
     this.setState({
-      passWord: event.target.value
+      passWord: value
     });
   };
   perfectInfoHandle = () => {
@@ -52,8 +60,18 @@ class Login extends React.Component {
       });
     }
   };
+  loginErrorHandle = () => {
+    if (this.state.loginErrorStatus) {
+      this.setState({
+        loginErrorStatus: false
+      });
+    }
+  };
   isUsernameAndPasswordNotEmpty() {
     return this.state.studentId && this.state.passWord;
+  }
+  loginSuccess() {
+    this.props.callBack();
   }
   loginRequest = () => {
     if (!this.isUsernameAndPasswordNotEmpty()) {
@@ -66,7 +84,26 @@ class Login extends React.Component {
       });
       const { studentId, passWord } = this.state;
       const loginInfo = { username: studentId, password: passWord };
-      api.login(qs.stringify(loginInfo));
+      api.login(qs.stringify(loginInfo)).then(res => {
+        if (res.data.status === 200) {
+          this.setState({
+            loginErrorStatus: false
+          });
+          /** 储存token */
+          global.constants.token = res.data.data.authentication;
+          // global.constants.userInfo = loginInfo;
+          // console.log(global.constants.userInfo);
+          /* 更新父组件 */
+          this.loginSuccess();
+        } else {
+          if (res.data.status === 404) {
+            this.setState({
+              loginErrorStatus: true,
+              loginErrorMessage: res.data.desc
+            });
+          }
+        }
+      });
     }
   };
   render() {
@@ -78,6 +115,13 @@ class Login extends React.Component {
             hintMessage="账号或密码未填写"
             open={this.state.perfectInfoStatus}
             callBack={this.perfectInfoHandle}
+          />
+        ) : null}
+        {this.state.loginErrorStatus ? (
+          <Alert
+            hintMessage={this.state.loginErrorMessage}
+            open={this.state.loginErrorStatus}
+            callBack={this.loginErrorHandle}
           />
         ) : null}
         <h2>登录</h2>

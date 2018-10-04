@@ -13,7 +13,7 @@ class Loading extends React.Component {
   render() {
     const { classes } = this.props;
     return (
-      <div>
+      <div className="loading-container">
         <CircularProgress className={classes.progress} size={50} />
       </div>
     );

@@ -8,8 +8,9 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
 import Alert from "../plugin/alert";
-import Loading from "../plugin/loading";
+// import Loading from "../plugin/loading";
 import api from "../../api/index";
+import "../../config";
 const styles = theme => ({
   root: {
     display: "flex",
@@ -53,32 +54,40 @@ class Register extends React.Component {
     passWordConfirm: ``,
     telePhone: ``,
     passwordEqualStatus: false,
-    perfectInfoStatus: false
+    perfectInfoStatus: false,
+    postWaitStatus: false,
+    registerErrorStatus: false,
+    registerErrorMessage: ``
   };
   studentIdInput = event => {
+    const { value } = event.target;
     this.setState({
-      studentId: event.target.value
+      studentId: value
     });
   };
   passWordInput = event => {
+    const { value } = event.target;
     this.setState({
-      passWord: event.target.value
+      passWord: value
     });
   };
   passWordInputConfirm = event => {
+    const { value } = event.target;
     this.setState({
-      passWordConfirm: event.target.value
+      passWordConfirm: value
     });
   };
   telePhoneInput = event => {
+    const { value } = event.target;
     this.setState({
-      telePhone: event.target.value
+      telePhone: value
     });
   };
   handleChange = event => {
+    const { value } = event.target;
     // this.setState({ [event.target.name]: event.target.value });
     this.setState({
-      department: event.target.value
+      department: value
     });
   };
   perfectInfoHandle = () => {
@@ -88,10 +97,20 @@ class Register extends React.Component {
       });
     }
   };
+  registerSuccessToLogin = () => {
+    this.props.callBack();
+  };
   passwordEqualHandle = () => {
     if (this.state.passwordEqualStatus) {
       this.setState({
         passwordEqualStatus: false
+      });
+    }
+  };
+  registerFailHandle = () => {
+    if (this.state.registerErrorStatus) {
+      this.setState({
+        registerErrorStatus: false
       });
     }
   };
@@ -123,7 +142,8 @@ class Register extends React.Component {
         });
       } else {
         this.setState({
-          passwordEqualStatus: false
+          passwordEqualStatus: false,
+          postWaitStatus: true
         });
         const registerData = {
           username: studentId,
@@ -132,12 +152,19 @@ class Register extends React.Component {
           phoneNumber: telePhone
         };
         api.register(registerData).then(response => {
-          if (response.data.status) {
-            const loginData = {
-              username: registerData.username,
-              password: registerData.password
-            };
-            api.login(loginData);
+          this.setState({
+            postWaitStatus: false
+          });
+          if (response.data.status === 200) {
+            /* 改变父组件Navigate的状态 */
+            this.registerSuccessToLogin();
+            /* global存值 */
+            global.constants.userInfo = registerData;
+          } else {
+            this.setState({
+              registerErrorStatus: true,
+              registerErrorMessage: response.data.desc
+            });
           }
         });
       }
@@ -147,7 +174,7 @@ class Register extends React.Component {
     const { classes } = this.props;
     return (
       <div className="container register-container">
-        <Loading />
+        {/* <Loading /> */}
         {/* 提示 */}
         {this.state.perfectInfoStatus ? (
           <Alert
@@ -161,6 +188,13 @@ class Register extends React.Component {
             hintMessage="两次输入的密码不同哦"
             open={this.state.passwordEqualStatus}
             callBack={this.passwordEqualHandle}
+          />
+        ) : null}
+        {this.state.registerErrorStatus ? (
+          <Alert
+            hintMessage={this.state.registerErrorMessage}
+            open={this.state.registerErrorStatus}
+            callBack={this.registerFailHandle}
           />
         ) : null}
         <h2>注册</h2>
@@ -223,14 +257,25 @@ class Register extends React.Component {
             <MenuItem value={"办公部门"}>办公部门</MenuItem>
           </Select>
         </FormControl>
-        <Button
-          onClick={this.regiserRequest}
-          variant="contained"
-          color="primary"
-          className={classes.button}
-        >
-          注册
-        </Button>
+        {!this.state.postWaitStatus ? (
+          <Button
+            onClick={this.regiserRequest}
+            variant="contained"
+            color="primary"
+            className={classes.button}
+          >
+            注册
+          </Button>
+        ) : (
+          <Button
+            variant="contained"
+            color="secondary"
+            disabled
+            className={classes.button}
+          >
+            注册中...
+          </Button>
+        )}
       </div>
     );
   }

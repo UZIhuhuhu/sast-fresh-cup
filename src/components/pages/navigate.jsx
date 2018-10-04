@@ -11,6 +11,8 @@ import Register from "./register";
 import Notice from "./notice";
 import Login from "./login";
 import Homepage from "./homepage";
+import Personal from "./personal";
+import "../../config";
 const styles = {
   root: {
     flexGrow: 1
@@ -25,7 +27,8 @@ const styles = {
 };
 class Navigate extends React.Component {
   state = {
-    navigateIndex: `homepage`
+    navigateIndex: `homepage`,
+    isUserLoginStatus: false
   };
   navigateNotice = () => {
     this.setState({
@@ -37,6 +40,11 @@ class Navigate extends React.Component {
       navigateIndex: `login`
     });
   };
+  navigatePersonalPage = () => {
+    this.setState({
+      navigateIndex: `personal`
+    });
+  };
   navigateRegister = () => {
     this.setState({
       navigateIndex: `register`
@@ -45,6 +53,23 @@ class Navigate extends React.Component {
   navigateHomePage = () => {
     this.setState({
       navigateIndex: `homepage`
+    });
+  };
+  changeNavigationBar = () => {
+    if (global.constants.token !== ``) {
+      this.setState({
+        isUserLoginStatus: true
+      });
+    } else {
+      this.setState({
+        isUserLoginStatus: false
+      });
+    }
+  };
+  /** 注册成功,跳转到登录页 */
+  registerSuccess = () => {
+    this.setState({
+      navigateIndex: `login`
     });
   };
   render() {
@@ -66,20 +91,31 @@ class Navigate extends React.Component {
             >
               计算机基础知识竞赛
             </Typography>
-            <Button color="inherit" onClick={this.navigateNotice.bind(this)}>
+            <Button color="inherit" onClick={this.navigateNotice}>
               比赛须知
             </Button>
-            <Button color="inherit" onClick={this.navigateLogin.bind(this)}>
+            {this.state.isUserLoginStatus ? (
+              <Button color="inherit" onClick={this.navigatePersonalPage}>
+                个人中心
+              </Button>
+            ) : null}
+            <Button color="inherit" onClick={this.navigateLogin}>
               登录
             </Button>
-            <Button color="inherit" onClick={this.navigateRegister.bind(this)}>
+            <Button color="inherit" onClick={this.navigateRegister}>
               注册
             </Button>
           </Toolbar>
         </AppBar>
         {this.state.navigateIndex === `homepage` ? <Homepage /> : null}
-        {this.state.navigateIndex === `login` ? <Login /> : null}
-        {this.state.navigateIndex === `register` ? <Register /> : null}
+        {this.state.navigateIndex === `login` ? (
+          <Login callBack={this.changeNavigationBar} />
+        ) : null}
+
+        {this.state.navigateIndex === `personal` ? <Personal /> : null}
+        {this.state.navigateIndex === `register` ? (
+          <Register callBack={this.registerSuccess} />
+        ) : null}
         {this.state.navigateIndex === `notice` ? <Notice /> : null}
       </div>
     );
