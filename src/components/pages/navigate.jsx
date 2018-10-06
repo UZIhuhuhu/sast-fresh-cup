@@ -58,7 +58,8 @@ class Navigate extends React.Component {
   changeNavigationBar = () => {
     if (global.constants.token !== ``) {
       this.setState({
-        isUserLoginStatus: true
+        isUserLoginStatus: true,
+        navigateIndex: `personal`
       });
     } else {
       this.setState({

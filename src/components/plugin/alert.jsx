@@ -6,6 +6,13 @@ import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
 
+/**
+ * 提示框组件
+ * 传入的值
+ * hintMessage => 提示信息
+ * open => 开启状态
+ * callBack => 关掉这个状态的函数
+ */
 class Alert extends React.Component {
   closeAlertWindow = () => {
     this.props.callBack();

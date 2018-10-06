@@ -90,7 +90,9 @@ class Login extends React.Component {
             loginErrorStatus: false
           });
           /** 储存token */
+          localStorage.setItem("token",res.data.data.authentication);
           global.constants.token = res.data.data.authentication;
+          console.log(localStorage.getItem("token"));
           // global.constants.userInfo = loginInfo;
           // console.log(global.constants.userInfo);
           /* 更新父组件 */

@@ -76,15 +76,6 @@ class Personal extends React.Component {
       .catch(err => console.log(err));
   };
   componentDidMount() {
-    console.log(global.constants.token);
-    // fetch("/v1/user_info", {
-    //   headers: {
-    //     "Content-Type": "application/x-www-form-urlencoded",
-    //     Cookie: `authorization=${global.constants.token}`
-    //   }
-    // })
-    //   .then(res => res.json())
-    //   .then(res => console.log(res));
     api
       .getInfo()
       .then(res => console.log(res.data))
