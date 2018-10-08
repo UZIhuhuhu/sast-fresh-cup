@@ -159,7 +159,8 @@ class Register extends React.Component {
             /* 改变父组件Navigate的状态 */
             this.registerSuccessToLogin();
             /* global存值 */
-            global.constants.userInfo = registerData;
+            localStorage.setItem(`userInfo`,registerData);
+            // global.constants.userInfo = registerData;
           } else {
             this.setState({
               registerErrorStatus: true,

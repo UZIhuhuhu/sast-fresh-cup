@@ -9,14 +9,7 @@ import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
 import api from "../../api/index";
 import "../../config";
-// import axios from "axios";
-// const formTokenInstance = axios.create({
-//   withCredentials: true,
-//   headers: {
-//     "Content-Type": "application/x-www-form-urlencoded",
-//     authorization: `${global.constants.token}`
-//   }
-// });
+import axios from "axios";
 
 const styles = theme => ({
   container: {
@@ -51,7 +44,8 @@ const styles = theme => ({
 class Personal extends React.Component {
   state = {
     telePhone: ``,
-    department: ``
+    department: ``,
+    userName: ``
   };
   modifyTelePhone(event) {
     const { value } = event.target;
@@ -76,11 +70,37 @@ class Personal extends React.Component {
       .catch(err => console.log(err));
   };
   componentDidMount() {
-    api
-      .getInfo()
-      .then(res => console.log(res.data))
-      // .catch(err => console.log(err));
-    // this.getInfo().then(res => res.data);
+    // console.log(localStorage.getItem(`token`));
+    axios
+      .get(`/v1/user_info`, {
+        headers: {
+          "Content-Type": "application/json",
+          authentication: `${localStorage.getItem("token")}`
+        }
+      })
+      .then(res => {
+        if (res.data.status === 200) {
+          const responseData = res.data.data;
+          const {
+            username,
+            phoneNumber,
+            targetDepartment,
+            authority
+          } = responseData;
+          console.log(responseData);
+          this.setState({
+            userName: username,
+            telePhone: phoneNumber,
+            department: targetDepartment
+          });
+          this.judgeCommonUserOrAdmin(authority);
+        }
+      })
+      .catch(err => console.log(err));
+  }
+  judgeCommonUserOrAdmin(identity) {
+    localStorage.removeItem("authority");
+    localStorage.setItem("authority", identity);
   }
   render() {
     const { classes } = this.props;
@@ -93,7 +113,7 @@ class Personal extends React.Component {
               <TextField
                 id="standard-read-only-input"
                 label="学号"
-                defaultValue={global.constants.userInfo.username}
+                value={this.state.userName}
                 className={classes.textField}
                 margin="normal"
                 InputProps={{
@@ -133,7 +153,7 @@ class Personal extends React.Component {
             variant="contained"
             color="primary"
             className={classes.button}
-            // onClick={this.loginRequest}
+            onClick={this.modifyPersonalInformationRequest}
           >
             修改
           </Button>

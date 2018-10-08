@@ -28,7 +28,8 @@ const styles = {
 class Navigate extends React.Component {
   state = {
     navigateIndex: `homepage`,
-    isUserLoginStatus: false
+    isUserLoginStatus: false,
+    isAdminName: 0
   };
   navigateNotice = () => {
     this.setState({
@@ -55,8 +56,31 @@ class Navigate extends React.Component {
       navigateIndex: `homepage`
     });
   };
+  navigateAnswer = () => {
+    this.setState({
+      navigateIndex: `answer`
+    });
+  };
+  showAdminOrStudentNavigationBar = () => {
+    console.log(localStorage.getItem("authority"));
+    this.setState({
+      isAdminName:
+        localStorage.getItem("authority") === `ROLE_ADMIN` ? `admin` : `user`
+    });
+  };
+  navigateAdmin = () => {
+    this.setState({
+      navigateIndex: `admin`
+    });
+  };
+  navigateCorrect = () => {
+    this.setState({
+      navigateIndex: `correct`
+    });
+  };
   changeNavigationBar = () => {
-    if (global.constants.token !== ``) {
+    this.showAdminOrStudentNavigationBar();
+    if (localStorage.getItem(`token`)) {
       this.setState({
         isUserLoginStatus: true,
         navigateIndex: `personal`
@@ -71,6 +95,13 @@ class Navigate extends React.Component {
   registerSuccess = () => {
     this.setState({
       navigateIndex: `login`
+    });
+  };
+  logOut = () => {
+    localStorage.removeItem(`token`);
+    this.setState({
+      isUserLoginStatus: false,
+      navigateIndex: `homepage`
     });
   };
   render() {
@@ -100,12 +131,36 @@ class Navigate extends React.Component {
                 个人中心
               </Button>
             ) : null}
-            <Button color="inherit" onClick={this.navigateLogin}>
-              登录
-            </Button>
-            <Button color="inherit" onClick={this.navigateRegister}>
-              注册
-            </Button>
+            {typeof this.state.isAdminName === "string" ? (
+              this.state.isAdminName === `admin` ? (
+                <div>
+                  <Button color="inherit" onClick={this.navigateCorrect}>
+                    批改题目
+                  </Button>
+                  <Button color="inherit" onClick={this.navigateAdmin}>
+                    后台管理
+                  </Button>
+                </div>
+              ) : (
+                <Button color="inherit" onClick={this.navigateAnswer}>
+                  试题
+                </Button>
+              )
+            ) : null}
+            {!this.state.isUserLoginStatus ? (
+              <div>
+                <Button color="inherit" onClick={this.navigateLogin}>
+                  登录
+                </Button>
+                <Button color="inherit" onClick={this.navigateRegister}>
+                  注册
+                </Button>
+              </div>
+            ) : (
+              <Button color="inherit" onClick={this.logOut}>
+                登出
+              </Button>
+            )}
           </Toolbar>
         </AppBar>
         {this.state.navigateIndex === `homepage` ? <Homepage /> : null}

@@ -85,16 +85,17 @@ class Login extends React.Component {
       const { studentId, passWord } = this.state;
       const loginInfo = { username: studentId, password: passWord };
       api.login(qs.stringify(loginInfo)).then(res => {
+        // document.cookie = "session_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         if (res.data.status === 200) {
+          localStorage.removeItem("authority");
+          const responseData = res.data.data;
           this.setState({
             loginErrorStatus: false
           });
           /** 储存token */
-          localStorage.setItem("token",res.data.data.authentication);
-          global.constants.token = res.data.data.authentication;
-          console.log(localStorage.getItem("token"));
-          // global.constants.userInfo = loginInfo;
-          // console.log(global.constants.userInfo);
+          localStorage.removeItem("token");
+          localStorage.setItem("token", responseData.authentication);
+          // document.cookie = `session_id=${localStorage.getItem("token")}; `;
           /* 更新父组件 */
           this.loginSuccess();
         } else {
@@ -108,6 +109,7 @@ class Login extends React.Component {
       });
     }
   };
+
   render() {
     const { classes } = this.props;
     return (

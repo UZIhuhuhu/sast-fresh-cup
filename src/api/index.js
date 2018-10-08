@@ -1,37 +1,26 @@
 import axios from "axios";
 import "../config";
-const loginInstance = axios.create({
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded"
-  }
-});
 const instance = axios.create({
   withCredentials: true,
   headers: {
-    "Content-Type": "application/json"
+    authentication: `${localStorage.getItem("token")}`
   }
 });
-const tokenInstance = axios.create({
+const Cinstance = axios.create({
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
-    authorization: `${localStorage.getItem("token")}`
+    authentication: `${localStorage.getItem("token")}`
   }
 });
-const formTokenInstance = axios.create({
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/x-www-form-urlencoded",
-    authorization: `${localStorage.getItem("token")}`
-  }
-});
-// const requestUrl = `http://47.107.68.125:8088`;
 class API {
-  login = postData => loginInstance.post(`/v1/tokens`, postData);
+  constructor() {
+    localStorage.removeItem("token");
+  }
+  login = postData => instance.post(`/v1/tokens`, postData);
   register = postData => instance.post(`/v1/user_info`, postData);
-  getInfo = () => formTokenInstance.get(`/v1/user_info`);
-  modifyInfo = postData => tokenInstance.patch(`/v1/user_info`, postData);
+  getInfo = () => Cinstance.get(`/v1/user_info`);
+  modifyInfo = postData => instance.patch(`/v1/user_info`, postData);
 }
 
 const api = new API();
