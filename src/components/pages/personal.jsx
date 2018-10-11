@@ -53,7 +53,6 @@ class Personal extends React.Component {
       telePhone: value
     });
   }
-  // getInfo = () => formTokenInstance.get(`/v1/user_info`);
   handleChange = event => {
     const { value } = event.target;
     this.setState({
@@ -70,7 +69,6 @@ class Personal extends React.Component {
       .catch(err => console.log(err));
   };
   componentDidMount() {
-    // console.log(localStorage.getItem(`token`));
     axios
       .get(`/v1/user_info`, {
         headers: {
@@ -87,20 +85,27 @@ class Personal extends React.Component {
             targetDepartment,
             authority
           } = responseData;
-          console.log(responseData);
+          // console.log(responseData);
           this.setState({
             userName: username,
             telePhone: phoneNumber,
             department: targetDepartment
           });
           this.judgeCommonUserOrAdmin(authority);
+          this.getInforSuccess();
+        } else {
+          console.log(res.data.errMsg);
         }
-      })
-      .catch(err => console.log(err));
+      });
   }
+  getInforSuccess = () => {
+    this.props.callBack();
+  };
   judgeCommonUserOrAdmin(identity) {
     localStorage.removeItem("authority");
+    localStorage.setItem("authority", null);
     localStorage.setItem("authority", identity);
+    console.log(localStorage.getItem("authority"));
   }
   render() {
     const { classes } = this.props;
