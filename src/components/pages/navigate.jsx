@@ -79,7 +79,6 @@ class Navigate extends React.Component {
     });
   };
   changeNavigationBar = () => {
-    this.showAdminOrStudentNavigationBar();
     if (localStorage.getItem(`token`)) {
       this.setState({
         isUserLoginStatus: true,
@@ -91,6 +90,9 @@ class Navigate extends React.Component {
       });
     }
   };
+  changeNavigationBarAdmin = () => {
+    this.showAdminOrStudentNavigationBar();
+  };
   /** 注册成功,跳转到登录页 */
   registerSuccess = () => {
     this.setState({
@@ -101,7 +103,8 @@ class Navigate extends React.Component {
     localStorage.removeItem(`token`);
     this.setState({
       isUserLoginStatus: false,
-      navigateIndex: `homepage`
+      navigateIndex: `homepage`,
+      isAdminName: ``
     });
   };
   render() {
@@ -168,7 +171,9 @@ class Navigate extends React.Component {
           <Login callBack={this.changeNavigationBar} />
         ) : null}
 
-        {this.state.navigateIndex === `personal` ? <Personal /> : null}
+        {this.state.navigateIndex === `personal` ? (
+          <Personal callBack={this.changeNavigationBarAdmin} />
+        ) : null}
         {this.state.navigateIndex === `register` ? (
           <Register callBack={this.registerSuccess} />
         ) : null}
