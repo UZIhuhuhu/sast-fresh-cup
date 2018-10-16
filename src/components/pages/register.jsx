@@ -10,7 +10,6 @@ import Button from "@material-ui/core/Button";
 import Alert from "../plugin/alert";
 // import Loading from "../plugin/loading";
 import api from "../../api/index";
-import "../../config";
 const styles = theme => ({
   root: {
     display: "flex",
@@ -158,9 +157,7 @@ class Register extends React.Component {
           if (response.data.status === 200) {
             /* 改变父组件Navigate的状态 */
             this.registerSuccessToLogin();
-            /* global存值 */
             localStorage.setItem(`userInfo`,registerData);
-            // global.constants.userInfo = registerData;
           } else {
             this.setState({
               registerErrorStatus: true,
