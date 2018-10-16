@@ -6,10 +6,6 @@ import Button from "@material-ui/core/Button";
 import Alert from "../plugin/alert";
 import api from "../../api/index";
 import qs from "qs";
-import "../../config";
-// import { createStore } from "redux";
-// const store = createStore();
-// const state = store.getState();
 const styles = theme => ({
   container: {
     display: "block",
@@ -67,12 +63,17 @@ class Login extends React.Component {
       });
     }
   };
-  isUsernameAndPasswordNotEmpty() {
-    return this.state.studentId && this.state.passWord;
-  }
-  loginSuccess() {
+  isUsernameAndPasswordNotEmpty = () =>
+    this.state.studentId && this.state.passWord;
+  loginSuccess = () => {
     this.props.callBack();
-  }
+  };
+  keyBoardEnter = event => {
+    const e = event || window.event;
+    if (e && e.keyCode === 13) {
+      this.loginRequest();
+    }
+  };
   loginRequest = () => {
     if (!this.isUsernameAndPasswordNotEmpty()) {
       this.setState({
@@ -85,17 +86,14 @@ class Login extends React.Component {
       const { studentId, passWord } = this.state;
       const loginInfo = { username: studentId, password: passWord };
       api.login(qs.stringify(loginInfo)).then(res => {
-        // document.cookie = "session_id=; expires=Thu, 01 Jan 1970 00:00:00 GMT";
         if (res.data.status === 200) {
-          localStorage.removeItem("authority");
           const responseData = res.data.data;
           this.setState({
             loginErrorStatus: false
           });
           /** 储存token */
-          localStorage.removeItem("token");
           localStorage.setItem("token", responseData.authentication);
-          // document.cookie = `session_id=${localStorage.getItem("token")}; `;
+          localStorage.setItem("cookie", responseData.authentication);
           /* 更新父组件 */
           this.loginSuccess();
         } else {
@@ -109,7 +107,9 @@ class Login extends React.Component {
       });
     }
   };
-
+  componentDidMount() {
+    console.log(`asdasdas`);
+  }
   render() {
     const { classes } = this.props;
     return (
@@ -138,7 +138,7 @@ class Login extends React.Component {
                 placeholder="学号"
                 className={classes.textField}
                 margin="normal"
-                onChange={this.studentIdInput.bind(this)}
+                onChange={this.studentIdInput}
               />
             </div>
             <div>
@@ -149,7 +149,8 @@ class Login extends React.Component {
                 type="password"
                 autoComplete="current-password"
                 margin="normal"
-                onChange={this.passWordInput.bind(this)}
+                onChange={this.passWordInput}
+                onKeyDown={this.keyBoardEnter}
               />
             </div>
           </form>

@@ -12,7 +12,9 @@ import Notice from "./notice";
 import Login from "./login";
 import Homepage from "./homepage";
 import Personal from "./personal";
-import "../../config";
+import Answer from "./answer";
+// import api from "../../api/index";
+// import axios from "axios";
 const styles = {
   root: {
     flexGrow: 1
@@ -101,12 +103,32 @@ class Navigate extends React.Component {
   };
   logOut = () => {
     localStorage.removeItem(`token`);
+    localStorage.removeItem(`cookie`);
     this.setState({
       isUserLoginStatus: false,
       navigateIndex: `homepage`,
       isAdminName: ``
     });
   };
+  componentDidMount() {
+    console.log(localStorage.getItem("token"));
+    if (localStorage.getItem("cookie")) {
+      console.log("wuwu");
+    }
+    this.setState({
+      navigateIndex:'personal'
+    })
+    // axios
+    // .get(`/v1/user_info`, {
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     authentication: `${localStorage.getItem("token")}`
+    //   }
+    // })
+    // api.login(qs.stringify(loginInfo)).then(res => {
+    //   console.log(res);
+    // });
+  }
   render() {
     const { classes } = this.props;
     return (
@@ -170,7 +192,6 @@ class Navigate extends React.Component {
         {this.state.navigateIndex === `login` ? (
           <Login callBack={this.changeNavigationBar} />
         ) : null}
-
         {this.state.navigateIndex === `personal` ? (
           <Personal callBack={this.changeNavigationBarAdmin} />
         ) : null}
@@ -178,6 +199,7 @@ class Navigate extends React.Component {
           <Register callBack={this.registerSuccess} />
         ) : null}
         {this.state.navigateIndex === `notice` ? <Notice /> : null}
+        {this.state.navigateIndex === `answer` ? <Answer /> : null}
       </div>
     );
   }
