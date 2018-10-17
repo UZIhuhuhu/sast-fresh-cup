@@ -34,34 +34,22 @@ class Navigate extends React.Component {
     isAdminName: 0
   };
   navigateNotice = () => {
-    this.setState({
-      navigateIndex: `notice`
-    });
+    this.setState({ navigateIndex: `notice` });
   };
   navigateLogin = () => {
-    this.setState({
-      navigateIndex: `login`
-    });
+    this.setState({ navigateIndex: `login` });
   };
   navigatePersonalPage = () => {
-    this.setState({
-      navigateIndex: `personal`
-    });
+    this.setState({ navigateIndex: `personal` });
   };
   navigateRegister = () => {
-    this.setState({
-      navigateIndex: `register`
-    });
+    this.setState({ navigateIndex: `register` });
   };
   navigateHomePage = () => {
-    this.setState({
-      navigateIndex: `homepage`
-    });
+    this.setState({ navigateIndex: `homepage` });
   };
   navigateAnswer = () => {
-    this.setState({
-      navigateIndex: `answer`
-    });
+    this.setState({ navigateIndex: `answer` });
   };
   showAdminOrStudentNavigationBar = () => {
     console.log(localStorage.getItem("authority"));
@@ -71,14 +59,10 @@ class Navigate extends React.Component {
     });
   };
   navigateAdmin = () => {
-    this.setState({
-      navigateIndex: `admin`
-    });
+    this.setState({ navigateIndex: `admin` });
   };
   navigateCorrect = () => {
-    this.setState({
-      navigateIndex: `correct`
-    });
+    this.setState({ navigateIndex: `correct` });
   };
   changeNavigationBar = () => {
     if (localStorage.getItem(`token`)) {
@@ -87,9 +71,7 @@ class Navigate extends React.Component {
         navigateIndex: `personal`
       });
     } else {
-      this.setState({
-        isUserLoginStatus: false
-      });
+      this.setState({ isUserLoginStatus: false });
     }
   };
   changeNavigationBarAdmin = () => {
@@ -97,9 +79,7 @@ class Navigate extends React.Component {
   };
   /** 注册成功,跳转到登录页 */
   registerSuccess = () => {
-    this.setState({
-      navigateIndex: `login`
-    });
+    this.setState({ navigateIndex: `login` });
   };
   logOut = () => {
     localStorage.removeItem(`token`);
@@ -110,14 +90,12 @@ class Navigate extends React.Component {
       isAdminName: ``
     });
   };
+  loginInfoFail = () => {
+    this.setState({ navigateIndex: `login` });
+  };
   componentDidMount() {
-    console.log(localStorage.getItem("token"));
-    if (localStorage.getItem("cookie")) {
-      console.log("wuwu");
-    }
-    this.setState({
-      navigateIndex:'personal'
-    })
+    this.changeNavigationBar();
+    this.setState({ navigateIndex: "personal" });
     // axios
     // .get(`/v1/user_info`, {
     //   headers: {
@@ -193,7 +171,10 @@ class Navigate extends React.Component {
           <Login callBack={this.changeNavigationBar} />
         ) : null}
         {this.state.navigateIndex === `personal` ? (
-          <Personal callBack={this.changeNavigationBarAdmin} />
+          <Personal
+            callBack={this.changeNavigationBarAdmin}
+            loginInfoFail={this.loginInfoFail}
+          />
         ) : null}
         {this.state.navigateIndex === `register` ? (
           <Register callBack={this.registerSuccess} />

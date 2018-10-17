@@ -76,15 +76,14 @@ class Personal extends React.Component {
         }
       })
       .then(res => {
-        if (res.data.status === 200) {
-          const responseData = res.data.data;
-          const {
-            username,
-            phoneNumber,
-            targetDepartment,
-            authority
-          } = responseData;
-          localStorage.setItem("department", responseData.targetDepartment);
+        const {
+          status,
+          desc,
+          data: { ...data }
+        } = res.data;
+        if (status === 200) {
+          const { username, phoneNumber, targetDepartment, authority } = data;
+          localStorage.setItem("department", data.targetDepartment);
           this.setState({
             userName: username,
             telePhone: phoneNumber,
@@ -93,7 +92,10 @@ class Personal extends React.Component {
           this.judgeCommonUserOrAdmin(authority);
           this.getInforSuccess();
         } else {
-          console.log(res.data.errMsg);
+          if (status === 404) {
+            console.log(desc);
+            this.props.loginInfoFail();
+          }
         }
       });
   }
