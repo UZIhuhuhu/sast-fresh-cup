@@ -1,5 +1,4 @@
 import axios from "axios";
-import "../config";
 const instance = axios.create({
   withCredentials: true,
   headers: {
@@ -14,9 +13,9 @@ const Cinstance = axios.create({
   }
 });
 class API {
-  constructor() {
-    localStorage.removeItem("token");
-  }
+  // constructor() {
+  //   super();
+  // }
   login = postData => instance.post(`/v1/tokens`, postData);
   register = postData => instance.post(`/v1/user_info`, postData);
   getInfo = () => Cinstance.get(`/v1/user_info`);

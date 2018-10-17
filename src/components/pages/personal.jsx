@@ -8,7 +8,6 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
 import api from "../../api/index";
-import "../../config";
 import axios from "axios";
 
 const styles = theme => ({
@@ -85,7 +84,7 @@ class Personal extends React.Component {
             targetDepartment,
             authority
           } = responseData;
-          // console.log(responseData);
+          localStorage.setItem("department", responseData.targetDepartment);
           this.setState({
             userName: username,
             telePhone: phoneNumber,
@@ -102,10 +101,8 @@ class Personal extends React.Component {
     this.props.callBack();
   };
   judgeCommonUserOrAdmin(identity) {
-    localStorage.removeItem("authority");
-    localStorage.setItem("authority", null);
     localStorage.setItem("authority", identity);
-    console.log(localStorage.getItem("authority"));
+    // console.log(localStorage.getItem("authority"));
   }
   render() {
     const { classes } = this.props;
