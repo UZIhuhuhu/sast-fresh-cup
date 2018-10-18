@@ -13,8 +13,17 @@ import Login from "./login";
 import Homepage from "./homepage";
 import Personal from "./personal";
 import Answer from "./answer";
-// import api from "../../api/index";
-// import axios from "axios";
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+const theme = createMuiTheme({
+  palette: {
+    primary: {
+      main: `#009688`
+    },
+    secondary: {
+      main: "#f44336"
+    }
+  }
+});
 const styles = {
   root: {
     flexGrow: 1
@@ -33,63 +42,22 @@ class Navigate extends React.Component {
     isUserLoginStatus: false,
     isAdminName: 0
   };
-  navigateNotice = () => {
-    this.setState({
-      navigateIndex: `notice`
-    });
-  };
-  navigateLogin = () => {
-    this.setState({
-      navigateIndex: `login`
-    });
-  };
-  navigatePersonalPage = () => {
-    this.setState({
-      navigateIndex: `personal`
-    });
-  };
-  navigateRegister = () => {
-    this.setState({
-      navigateIndex: `register`
-    });
-  };
-  navigateHomePage = () => {
-    this.setState({
-      navigateIndex: `homepage`
-    });
-  };
-  navigateAnswer = () => {
-    this.setState({
-      navigateIndex: `answer`
-    });
-  };
   showAdminOrStudentNavigationBar = () => {
-    console.log(localStorage.getItem("authority"));
     this.setState({
       isAdminName:
         localStorage.getItem("authority") === `ROLE_ADMIN` ? `admin` : `user`
     });
   };
-  navigateAdmin = () => {
-    this.setState({
-      navigateIndex: `admin`
-    });
-  };
-  navigateCorrect = () => {
-    this.setState({
-      navigateIndex: `correct`
-    });
+  /** 导航页面的函数 */
+  navigateToPage = index => {
+    this.setState({ navigateIndex: index });
   };
   changeNavigationBar = () => {
     if (localStorage.getItem(`token`)) {
-      this.setState({
-        isUserLoginStatus: true,
-        navigateIndex: `personal`
-      });
+      this.setState({ isUserLoginStatus: true });
+      this.navigateToPage(`personal`);
     } else {
-      this.setState({
-        isUserLoginStatus: false
-      });
+      this.setState({ isUserLoginStatus: false });
     }
   };
   changeNavigationBarAdmin = () => {
@@ -97,103 +65,132 @@ class Navigate extends React.Component {
   };
   /** 注册成功,跳转到登录页 */
   registerSuccess = () => {
-    this.setState({
-      navigateIndex: `login`
-    });
+    this.navigateToPage(`login`);
   };
   logOut = () => {
     localStorage.removeItem(`token`);
     localStorage.removeItem(`cookie`);
     this.setState({
       isUserLoginStatus: false,
-      navigateIndex: `homepage`,
       isAdminName: ``
     });
+    this.navigateToPage(`homepage`);
+  };
+  /** 获取登录状态失败 => 客官登录下~ */
+  loginInfoFail = () => {
+    this.navigateToPage(`login`);
   };
   componentDidMount() {
-    console.log(localStorage.getItem("token"));
-    if (localStorage.getItem("cookie")) {
-      console.log("wuwu");
-    }
-    this.setState({
-      navigateIndex:'personal'
-    })
-    // axios
-    // .get(`/v1/user_info`, {
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     authentication: `${localStorage.getItem("token")}`
-    //   }
-    // })
-    // api.login(qs.stringify(loginInfo)).then(res => {
-    //   console.log(res);
-    // });
+    this.changeNavigationBar();
+    this.navigateToPage(`personal`);
   }
   render() {
     const { classes } = this.props;
     return (
       <div className="navigate-wrapper">
-        <AppBar position="static">
-          <Toolbar>
-            <IconButton
-              className={classes.menuButton}
-              color="inherit"
-              aria-label="Menu"
-            />
-            <Typography
-              variant="title"
-              color="inherit"
-              className={classes.grow}
-              onClick={this.navigateHomePage}
-            >
-              计算机基础知识竞赛
-            </Typography>
-            <Button color="inherit" onClick={this.navigateNotice}>
-              比赛须知
-            </Button>
-            {this.state.isUserLoginStatus ? (
-              <Button color="inherit" onClick={this.navigatePersonalPage}>
-                个人中心
+        <MuiThemeProvider theme={theme}>
+          <AppBar position="static">
+            <Toolbar theme={theme}>
+              <IconButton
+                className={classes.menuButton}
+                color="inherit"
+                aria-label="Menu"
+              />
+              <Typography
+                variant="title"
+                color="inherit"
+                className={classes.grow}
+                onClick={() => {
+                  this.navigateToPage(`homepage`);
+                }}
+              >
+                计算机基础知识竞赛
+              </Typography>
+              <Button
+                color="inherit"
+                onClick={() => {
+                  this.navigateToPage(`notice`);
+                }}
+              >
+                比赛须知
               </Button>
-            ) : null}
-            {typeof this.state.isAdminName === "string" ? (
-              this.state.isAdminName === `admin` ? (
-                <div>
-                  <Button color="inherit" onClick={this.navigateCorrect}>
-                    批改题目
+              {this.state.isUserLoginStatus ? (
+                <Button
+                  color="inherit"
+                  onClick={() => {
+                    this.navigateToPage(`personal`);
+                  }}
+                >
+                  个人中心
+                </Button>
+              ) : null}
+              {typeof this.state.isAdminName === "string" ? (
+                this.state.isAdminName === `admin` ? (
+                  <div>
+                    <Button
+                      color="inherit"
+                      onClick={() => {
+                        this.navigateToPage(`correct`);
+                      }}
+                    >
+                      批改题目
+                    </Button>
+                    <Button
+                      color="inherit"
+                      onClick={() => {
+                        this.navigateToPage(`admin`);
+                      }}
+                    >
+                      后台管理
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    color="inherit"
+                    onClick={() => {
+                      this.navigateToPage(`answer`);
+                    }}
+                  >
+                    试题
                   </Button>
-                  <Button color="inherit" onClick={this.navigateAdmin}>
-                    后台管理
+                )
+              ) : null}
+              {!this.state.isUserLoginStatus ? (
+                <div>
+                  <Button
+                    color="inherit"
+                    onClick={() => {
+                      this.navigateToPage(`login`);
+                    }}
+                  >
+                    登录
+                  </Button>
+                  <Button
+                    color="inherit"
+                    onClick={() => {
+                      this.navigateToPage(`register`);
+                    }}
+                  >
+                    注册
                   </Button>
                 </div>
               ) : (
-                <Button color="inherit" onClick={this.navigateAnswer}>
-                  试题
+                <Button color="inherit" onClick={this.logOut}>
+                  登出
                 </Button>
-              )
-            ) : null}
-            {!this.state.isUserLoginStatus ? (
-              <div>
-                <Button color="inherit" onClick={this.navigateLogin}>
-                  登录
-                </Button>
-                <Button color="inherit" onClick={this.navigateRegister}>
-                  注册
-                </Button>
-              </div>
-            ) : (
-              <Button color="inherit" onClick={this.logOut}>
-                登出
-              </Button>
-            )}
-          </Toolbar>
-        </AppBar>
+              )}
+            </Toolbar>
+          </AppBar>
+        </MuiThemeProvider>
         {this.state.navigateIndex === `homepage` ? <Homepage /> : null}
         {this.state.navigateIndex === `login` ? (
           <Login callBack={this.changeNavigationBar} />
         ) : null}
         {this.state.navigateIndex === `personal` ? (
-          <Personal callBack={this.changeNavigationBarAdmin} />
+          <Personal
+            callBack={this.changeNavigationBarAdmin}
+            loginInfoFail={this.loginInfoFail}
+          />
         ) : null}
         {this.state.navigateIndex === `register` ? (
           <Register callBack={this.registerSuccess} />

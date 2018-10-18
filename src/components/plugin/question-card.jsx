@@ -6,8 +6,9 @@ import CardActions from "@material-ui/core/CardActions";
 import CardContent from "@material-ui/core/CardContent";
 import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
-
-const styles = {
+import Checkbox from "@material-ui/core/Checkbox";
+import TextField from "@material-ui/core/TextField";
+const styles = theme => ({
   card: {
     minWidth: 275
   },
@@ -21,13 +22,44 @@ const styles = {
   },
   pos: {
     marginBottom: 12
+  },
+  container: {
+    display: "flex",
+    flexWrap: "wrap"
+  },
+  textField: {
+    marginLeft: theme.spacing.unit,
+    marginRight: theme.spacing.unit
+  },
+  dense: {
+    marginTop: 16
+  },
+  menu: {
+    width: 400
+  },
+  test: {
+    color: "red",
+    fontSize: "1rem"
   }
+});
+const textarea = {
+  minWidth: `25rem`,
+  marginBottom: `2rem`
 };
-
 class QuestionCard extends React.Component {
+  // constructor(props) {
+  //   super(props);
+  // }
+  state = {
+    checkedB: true,
+    title: ``
+  };
+  handleChange = name => event => {
+    this.setState({ [name]: event.target.checked });
+  };
   render() {
-    const { classes } = this.props;
-    const bull = <span className={classes.bullet}>•</span>;
+    const { classes, questionInfo } = this.props;
+    console.log(questionInfo);
     return (
       <Card className={classes.card}>
         <CardContent>
@@ -35,28 +67,41 @@ class QuestionCard extends React.Component {
             className={classes.title}
             color="textSecondary"
             gutterBottom
+            style={styles.test}
           >
-            Word of the Day
+            第一题
           </Typography>
-          <Typography variant="h5" component="h2">
-            be
-            {bull}
-            nev
-            {bull}o{bull}
-            lent
-          </Typography>
-          <Typography className={classes.pos} color="textSecondary">
-            adjective
-          </Typography>
-          <Typography component="p">
-            well meaning and kindly.
-            <br />
-            {'"a benevolent smile"'}
-          </Typography>
+          <div className="question-title">
+            {questionInfo.question ? questionInfo.question.question : null}
+          </div>
         </CardContent>
         <CardActions>
-          <Button size="small">Learn More</Button>
+          <Button size="small">题目选项以及答题框:</Button>
         </CardActions>
+        <div className="option-item">
+          <Checkbox value="checkedC" />
+          <h5>选项1</h5>
+        </div>
+        <div className="option-item">
+          <Checkbox value="checkedC" />
+          <h5>选项2</h5>
+        </div>
+        <div className="option-item">
+          <Checkbox value="checkedC" />
+          <h5>选项3</h5>
+        </div>
+        <TextField
+          id="outlined-multiline-flexible"
+          label="答题框"
+          multiline
+          rowsMax="4"
+          value={this.state.multiline}
+          onChange={this.handleChange("multiline")}
+          className={classes.textField}
+          margin="normal"
+          variant="outlined"
+          style={textarea}
+        />
       </Card>
     );
   }
