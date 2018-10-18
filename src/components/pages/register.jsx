@@ -84,7 +84,6 @@ class Register extends React.Component {
   };
   handleChange = event => {
     const { value } = event.target;
-    // this.setState({ [event.target.name]: event.target.value });
     this.setState({
       department: value
     });

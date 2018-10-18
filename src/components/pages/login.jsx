@@ -86,30 +86,29 @@ class Login extends React.Component {
       const { studentId, passWord } = this.state;
       const loginInfo = { username: studentId, password: passWord };
       api.login(qs.stringify(loginInfo)).then(res => {
-        if (res.data.status === 200) {
-          const responseData = res.data.data;
+        const {
+          data: { ...data }
+        } = res;
+        if (data.status === 200) {
           this.setState({
             loginErrorStatus: false
           });
           /** 储存token */
-          localStorage.setItem("token", responseData.authentication);
-          localStorage.setItem("cookie", responseData.authentication);
+          localStorage.setItem("token", data.data.authentication);
+          localStorage.setItem("cookie", data.data.authentication);
           /* 更新父组件 */
           this.loginSuccess();
         } else {
-          if (res.data.status === 404) {
+          if (data.status === 404) {
             this.setState({
               loginErrorStatus: true,
-              loginErrorMessage: res.data.desc
+              loginErrorMessage: data.desc
             });
           }
         }
       });
     }
   };
-  componentDidMount() {
-    console.log(`asdasdas`);
-  }
   render() {
     const { classes } = this.props;
     return (

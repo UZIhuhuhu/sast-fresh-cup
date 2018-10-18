@@ -7,9 +7,8 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
-import api from "../../api/index";
 import axios from "axios";
-
+import api from "../../api/index";
 const styles = theme => ({
   container: {
     display: "block",
@@ -46,12 +45,12 @@ class Personal extends React.Component {
     department: ``,
     userName: ``
   };
-  modifyTelePhone(event) {
+  modifyTelePhone = event => {
     const { value } = event.target;
     this.setState({
       telePhone: value
     });
-  }
+  };
   handleChange = event => {
     const { value } = event.target;
     this.setState({
@@ -62,10 +61,32 @@ class Personal extends React.Component {
   modifyPersonalInformationRequest = () => {
     const { telePhone, department } = this.state;
     const postData = { phoneNumber: telePhone, targetDepartment: department };
-    api
-      .modifyInfo(postData)
-      .then(res => console.log(res.data))
-      .catch(err => console.log(err));
+    api.modify(postData).then(res => console.log(res.data));
+    // axios({
+    //   method:'patch',
+    //   url:'/v1/user_info',
+    //   headers: {
+    //     "Content-Type": "application/json",
+    //     authentication: localStorage.getItem("token")
+    //   },
+    //   data: JSON.stringify(postData)
+    // }).then(res => {
+    //   console.log(res)
+    // })
+    // axios
+    //   .patch(`/v1/user_info`, {
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //       authentication: localStorage.getItem("token")
+    //     },
+    //     data: JSON.stringify(postData)
+    //   })
+    //   .then(res => {
+    //     const {
+    //       data: { ...data }
+    //     } = res;
+    //     console.log(data);
+    //   });
   };
   componentDidMount() {
     axios
@@ -76,15 +97,13 @@ class Personal extends React.Component {
         }
       })
       .then(res => {
-        if (res.data.status === 200) {
-          const responseData = res.data.data;
-          const {
-            username,
-            phoneNumber,
-            targetDepartment,
-            authority
-          } = responseData;
-          localStorage.setItem("department", responseData.targetDepartment);
+        const {
+          status,
+          data: { ...data }
+        } = res.data;
+        if (status === 200) {
+          const { username, phoneNumber, targetDepartment, authority } = data;
+          localStorage.setItem("department", data.targetDepartment);
           this.setState({
             userName: username,
             telePhone: phoneNumber,
@@ -93,7 +112,9 @@ class Personal extends React.Component {
           this.judgeCommonUserOrAdmin(authority);
           this.getInforSuccess();
         } else {
-          console.log(res.data.errMsg);
+          if (status === 404) {
+            this.props.loginInfoFail();
+          }
         }
       });
   }
@@ -102,7 +123,6 @@ class Personal extends React.Component {
   };
   judgeCommonUserOrAdmin(identity) {
     localStorage.setItem("authority", identity);
-    // console.log(localStorage.getItem("authority"));
   }
   render() {
     const { classes } = this.props;
