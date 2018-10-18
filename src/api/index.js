@@ -5,21 +5,11 @@ const instance = axios.create({
     authentication: `${localStorage.getItem("token")}`
   }
 });
-const Cinstance = axios.create({
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-    authentication: `${localStorage.getItem("token")}`
-  }
-});
 class API {
-  // constructor() {
-  //   super();
-  // }
   login = postData => instance.post(`/v1/tokens`, postData);
   register = postData => instance.post(`/v1/user_info`, postData);
-  getInfo = () => Cinstance.get(`/v1/user_info`);
-  modifyInfo = postData => instance.patch(`/v1/user_info`, postData);
+  modify = postData =>
+    instance.patch(`/v1/user_info`, JSON.stringify(postData), {headers: {'content-type': 'application/json'}});
 }
 
 const api = new API();
