@@ -3,16 +3,13 @@ import PropTypes from 'prop-types'
 import classNames from 'classnames'
 import TextField from '@material-ui/core/TextField'
 import { withStyles } from '@material-ui/core/styles'
-import InputLabel from '@material-ui/core/InputLabel'
 import MenuItem from '@material-ui/core/MenuItem'
-import FormControl from '@material-ui/core/FormControl'
-import Select from '@material-ui/core/Select'
 import Button from '@material-ui/core/Button'
-import InputAdornment from '@material-ui/core/InputAdornment'
+import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 import Alert from '../plugin/alert'
 import api from '../../api/index.js'
-import '../../config'
 import admin from '../../style/admin.css'
+import axios from "axios";
 
 const styles = theme => ({
   container: {
@@ -32,6 +29,12 @@ const styles = theme => ({
   },
   input: {
     margin: theme.spacing.unit
+  },
+  rightIcon: {
+    marginLeft: theme.spacing.unit
+  },
+  iconSmall: {
+    fontSize: 20
   }
 })
 
@@ -61,24 +64,7 @@ class Admin extends React.Component {
           <div className="container-content">
             <h2>批量注册</h2>
             <div className="button-container">
-            <Button variant="contained" color="primary" className={classes.button}>
-              下载模版
-            </Button>
-            </div>
-            <h4 className={classes.margin}>未选择文件</h4>
-            <div className="button-container">
-              <Button variant="contained" color="primary" className={classes.button}>
-                选择文件
-              </Button>
-              <Button variant="contained" color="primary" className={classes.button}>
-                上传
-              </Button>
-            </div>
-          </div>
-          <div className="container-content">
-            <h2>批量添加题目</h2>
-            <div className="button-container">
-              <Button variant="contained" color="primary" className={classes.button}>
+              <Button variant="contained" color="primary" className={classes.button} onClick={this.downloadRegisterExcelRequest}>
                 下载模版
               </Button>
             </div>
@@ -87,8 +73,27 @@ class Admin extends React.Component {
               <Button variant="contained" color="primary" className={classes.button}>
                 选择文件
               </Button>
+              <Button variant="contained" color="default" className={classes.button} onClick={this.uploadResgisterExcelRequest}>
+                Upload
+                <CloudUploadIcon className={classes.rightIcon} />
+              </Button>
+            </div>
+          </div>
+          <div className="container-content">
+            <h2>批量添加题目</h2>
+            <div className="button-container">
+              <Button variant="contained" color="primary" className={classes.button} onClick={this.downloadQuestionExcelRequest}>
+                下载模版
+              </Button>
+            </div>
+            <h4 className={classes.margin}>未选择文件</h4>
+            <div className="button-container">
               <Button variant="contained" color="primary" className={classes.button}>
-                上传
+                选择文件
+              </Button>
+              <Button variant="contained" color="default" className={classes.button} onClick={this.uploadQuestionExcelRequest}>
+                Upload
+                <CloudUploadIcon className={classes.rightIcon} />
               </Button>
             </div>
           </div>
