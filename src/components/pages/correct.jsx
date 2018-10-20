@@ -86,7 +86,7 @@ class Correct extends React.Component {
           <div class="search-textField">
             <TextField
               select
-              label="Choose your department"
+              label="部门"
               className={classNames(classes.margin, classes.textField)}
               value={this.state.weightRange}
               onChange={this.handleSelectChange('weightRange')}
