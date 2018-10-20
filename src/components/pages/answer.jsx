@@ -11,8 +11,34 @@ import FAB from "../plugin/FAB";
 import QuestionCard from "../plugin/question-card";
 import axios from "axios";
 import "../../style/answer.css";
+import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 const drawerWidth = 240;
-
+const theme = createMuiTheme({
+  overrides: {
+    // Name of the component ⚛️ / style sheet
+    MuiButton: {
+      // Name of the rule
+      root: {
+        // Some CSS
+        // background: "#2979ff"
+        // borderRadius: 3,
+        // border: 0,
+        // color: "white",
+        // height: 48,
+        // padding: "0 30px",
+        // boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)"
+      }
+    }
+  },
+  palette: {
+    primary: {
+      main: `#2979ff`
+    },
+    secondary: {
+      main: "#f44336"
+    }
+  }
+});
 const styles = theme => ({
   root: {
     flexGrow: 1,
@@ -49,7 +75,8 @@ class Answer extends React.Component {
     open: false,
     anchor: "left",
     answerSumLength: 0,
-    questionOrderArray: []
+    questionOrderArray: [],
+    questionInfo: {}
   };
 
   handleDrawerOpen = () => {
@@ -76,46 +103,64 @@ class Answer extends React.Component {
       .then(res => {
         const {
           status,
-          desc,
           data: { ...data }
         } = res.data;
-        console.log(desc);
         if (status === 200) {
           console.log(data);
-          let questionOrderArray = [];
-          for (let i = 0; i < data.questionSize; i++) {
-            questionOrderArray.push(i);
-          }
-          this.setState({ questionOrderArray: questionOrderArray });
-          this.setState({ answerSumLength: data.questionSize });
         }
       });
   };
   changeQuestionOrder = item => {
     this.displayQuestion(item);
   };
-  componentDidMount() {
-    axios
-      .get(`/v1/exam/`, {
+  async componentDidMount() {
+    await axios.get(`/v1/exam/`, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+        authentication: `${localStorage.getItem("token")}`
+      }
+    });
+    await axios
+      .get(`/v1/exam/0`, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
           authentication: `${localStorage.getItem("token")}`
         }
       })
-      .then(() => {
-        this.displayQuestion(0);
+      .then(res => {
+        const {
+          status,
+          data: { ...data }
+        } = res.data;
+        if (status === 200) {
+          console.log(data.question);
+          let questionOrderArray = [];
+          for (let i = 0; i < data.questionSize; i++) {
+            questionOrderArray.push(i);
+          }
+          this.setState(
+            {
+              questionOrderArray: questionOrderArray,
+              questionInfo: data,
+              answerSumLength: data.questionSize
+            },
+            () => console.log(this.state.questionInfo)
+          );
+        }
       });
   }
   render() {
     const { classes } = this.props;
     const questionOrder = this.state.questionOrderArray.map(item => (
-      <div>
+      <div key={item.toString()}>
         <Button
           className={classes.button}
           key={item.toString()}
           // eslint-disable-next-line
           className="questionOrderButton"
-          onClick={this.changeQuestionOrder(item)}
+          onClick={() => {
+            this.changeQuestionOrder(item);
+          }}
         >
           第{item + 1}题
         </Button>
@@ -124,30 +169,36 @@ class Answer extends React.Component {
     ));
     return (
       <div className={classes.root}>
-        <AppBar position="absolute" className={classes.appBar}>
-          <Toolbar>
-            <Typography variant="h6" color="inherit" noWrap>
-              答题卡
+        <MuiThemeProvider theme={theme}>
+          <AppBar position="absolute" className={classes.appBar}>
+            <Toolbar>
+              <Typography color="inherit" noWrap>
+                答题卡
+              </Typography>
+            </Toolbar>
+          </AppBar>
+
+          <Drawer
+            variant="permanent"
+            classes={{
+              paper: classes.drawerPaper
+            }}
+          >
+            <div className={classes.toolbar} />
+            {questionOrder}
+          </Drawer>
+          <main className={classes.content}>
+            <div className={classes.toolbar} />
+            <Typography noWrap>
+              {/* 题目内容 */}
+              <QuestionCard
+                callBack={this.displayQuestion}
+                questionInfo={this.state.questionInfo}
+              />
             </Typography>
-          </Toolbar>
-        </AppBar>
-        <Drawer
-          variant="permanent"
-          classes={{
-            paper: classes.drawerPaper
-          }}
-        >
-          <div className={classes.toolbar} />
-          {questionOrder}
-        </Drawer>
-        <main className={classes.content}>
-          <div className={classes.toolbar} />
-          <Typography noWrap>
-            {/* 题目内容 */}
-            <QuestionCard callBack={this.displayQuestion} />
-          </Typography>
-        </main>
-        <FAB />
+          </main>
+          <FAB />
+        </MuiThemeProvider>
       </div>
     );
   }
