@@ -17,10 +17,10 @@ import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: `#009688`
+      main: `#2196f3`
     },
     secondary: {
-      main: "#f44336"
+      main: "#42a5f5"
     }
   }
 });
@@ -68,8 +68,7 @@ class Navigate extends React.Component {
     this.navigateToPage(`login`);
   };
   logOut = () => {
-    localStorage.removeItem(`token`);
-    localStorage.removeItem(`cookie`);
+    localStorage.clear();
     this.setState({
       isUserLoginStatus: false,
       isAdminName: ``
@@ -79,6 +78,7 @@ class Navigate extends React.Component {
   /** 获取登录状态失败 => 客官登录下~ */
   loginInfoFail = () => {
     this.navigateToPage(`login`);
+    this.setState({ isUserLoginStatus: false });
   };
   componentDidMount() {
     this.changeNavigationBar();
@@ -176,7 +176,7 @@ class Navigate extends React.Component {
                 </div>
               ) : (
                 <Button color="inherit" onClick={this.logOut}>
-                  登出
+                  注销
                 </Button>
               )}
             </Toolbar>

@@ -2,8 +2,9 @@ import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-// import EditIcon from "@material-ui/icons/Edit";
-import Right from "@material-ui/icons/ArrowForward";
+import EditIcon from "@material-ui/icons/Edit";
+// import Right from "@material-ui/icons/ArrowForward";
+// import Send from "@material-ui/icons/Send";
 
 const styles = theme => ({
   button: {
@@ -18,7 +19,7 @@ class FAB extends React.Component {
   state = {};
   navigateToNextQuestion = () => {
     this.props.callBack();
-  }
+  };
   render() {
     const { classes } = this.props;
     return (
@@ -28,9 +29,9 @@ class FAB extends React.Component {
           color="secondary"
           aria-label="Edit"
           className={classes.button}
-          onClick = {this.navigateToNextQuestion}
+          onClick={this.navigateToNextQuestion}
         >
-          <Right />
+          <EditIcon />
         </Button>
       </div>
     );

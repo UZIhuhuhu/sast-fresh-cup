@@ -8,6 +8,9 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 import Checkbox from "@material-ui/core/Checkbox";
 import TextField from "@material-ui/core/TextField";
+import FAB from "../plugin/FAB";
+import Alert from "../plugin/alert";
+import api from "../../api/index";
 const styles = theme => ({
   card: {
     minWidth: 275
@@ -47,62 +50,145 @@ const textarea = {
   marginBottom: `2rem`
 };
 class QuestionCard extends React.Component {
-  // constructor(props) {
-  //   super(props);
-  // }
   state = {
-    checkedB: true,
-    title: ``
+    checked: true,
+    title: ``,
+    checkedAnswer: ``,
+    textAreaAnswer: null,
+    errMsg: ``,
+    answerStatusCode: 0,
+    answerStatus: false,
+    solutionChild: [],
+    makeChoiceStatus: false,
+    makeAnswerStatus: false
   };
-  handleChange = name => event => {
-    this.setState({ [name]: event.target.checked });
+  questionChoiceHandle = value => {
+    this.setState({ checkedAnswer: value.choice, makeChoiceStatus: true });
+  };
+  textAreaHandle = event => {
+    const { value } = event.target;
+    this.setState({ textAreaAnswer: value, makeAnswerStatus: true });
+  };
+  navigateToNextQuestion = index => {
+    const answerString = {
+      questionId: index,
+      answer: `${
+        this.state.makeChoiceStatus === true
+          ? this.state.checkedAnswer
+          : this.props.choiceSolution[0]
+      }€${
+        this.state.makeAnswerStatus === true
+          ? this.state.textAreaAnswer
+          : this.props.answerSolution[0]
+      }`
+    };
+    api.answerQuestion(JSON.stringify(answerString)).then(res => {
+      const { status, desc } = res.data;
+      this.setState({
+        answerStatusCode: status,
+        answerStatus: true
+      });
+      if (status !== 200) this.setState({ errMsg: desc });
+    });
+  };
+  answerAlertHandle = () => {
+    if (this.state.answerStatus) {
+      this.setState({
+        answerStatus: false
+      });
+    }
   };
   render() {
-    const { classes, questionInfo } = this.props;
-    console.log(questionInfo);
-    return (
-      <Card className={classes.card}>
-        <CardContent>
-          <Typography
-            className={classes.title}
-            color="textSecondary"
-            gutterBottom
-            style={styles.test}
-          >
-            第一题
-          </Typography>
-          <div className="question-title">
-            {questionInfo.question ? questionInfo.question.question : null}
+    const {
+      classes,
+      questionInfo,
+      questionId,
+      submitAnswerMessage,
+      choiceSolution,
+      answerSolution
+    } = this.props;
+    /**
+     * choiceSolution => 选项的回答
+     * answerSolution => 答题框的回答
+     */
+    if (questionInfo !== undefined) {
+      var checkboxList = questionInfo.choices.map(item => {
+        return (
+          <div className="option-item">
+            <Checkbox
+              value="checked"
+              key={item.toString()}
+              /** 这边很诡异..嗯,如果重构的话,就坑下一届的吧 */
+              checked={
+                this.state.checkedAnswer === item.choice
+                  ? true
+                  : !this.state.checkedAnswer && item.choice === choiceSolution
+                    ? true
+                    : false
+              }
+              onClick={() => {
+                this.questionChoiceHandle(item);
+              }}
+            />
+            <h5>{item.choice}</h5>
           </div>
-        </CardContent>
-        <CardActions>
-          <Button size="small">题目选项以及答题框:</Button>
-        </CardActions>
-        <div className="option-item">
-          <Checkbox value="checkedC" />
-          <h5>选项1</h5>
-        </div>
-        <div className="option-item">
-          <Checkbox value="checkedC" />
-          <h5>选项2</h5>
-        </div>
-        <div className="option-item">
-          <Checkbox value="checkedC" />
-          <h5>选项3</h5>
-        </div>
-        <TextField
-          id="outlined-multiline-flexible"
-          label="答题框"
-          multiline
-          rowsMax="4"
-          value={this.state.multiline}
-          onChange={this.handleChange("multiline")}
-          className={classes.textField}
-          margin="normal"
-          variant="outlined"
-          style={textarea}
+        );
+      });
+    }
+    return (
+      <div>
+        {this.state.answerStatus && submitAnswerMessage ? (
+          <Alert
+            hintMessage={
+              this.state.answerStatusCode === 200
+                ? submitAnswerMessage
+                : this.state.errMsg
+            }
+            open={this.state.answerStatus}
+            callBack={this.answerAlertHandle}
+          />
+        ) : null}
+        <Card className={classes.card}>
+          <CardContent>
+            <Typography
+              className={classes.title}
+              color="textSecondary"
+              gutterBottom
+              style={styles.test}
+            >
+              第{questionId + 1}题
+            </Typography>
+            <div className="question-title">
+              {questionInfo ? questionInfo.question : null}
+            </div>
+          </CardContent>
+          <CardActions>
+            <Button size="small">题目选项以及答题框:</Button>
+          </CardActions>
+          {questionInfo ? checkboxList : null}
+          <TextField
+            id="outlined-multiline-flexible"
+            label="答题框(选项的解释或者代码)"
+            multiline
+            rowsMax="4"
+            value={
+              this.state.textAreaAnswer !== null
+                ? this.state.textAreaAnswer
+                : answerSolution
+            }
+            onChange={this.textAreaHandle}
+            className={classes.textField}
+            margin="normal"
+            variant="outlined"
+            style={textarea}
+          />
+        </Card>
+        <FAB
+          callBack={() => {
+            this.navigateToNextQuestion(questionId || 0);
+          }}
         />
-      </Card>
+      </div>
     );
   }
 }
