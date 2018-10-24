@@ -7,11 +7,10 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Divider from "@material-ui/core/Divider";
 import Button from "@material-ui/core/Button";
-import FAB from "../plugin/FAB";
-import QuestionCard from "../plugin/question-card";
-import axios from "axios";
-import "../../style/answer.css";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
+import QuestionCard from "../plugin/question-card";
+import "../../style/answer.css";
+import api from "../../api/index";
 const drawerWidth = 240;
 const theme = createMuiTheme({
   overrides: {
@@ -32,10 +31,10 @@ const theme = createMuiTheme({
   },
   palette: {
     primary: {
-      main: `#2979ff`
+      main: `#90caf9`
     },
     secondary: {
-      main: "#f44336"
+      main: "#bbdefb"
     }
   }
 });
@@ -69,6 +68,9 @@ const styles = theme => ({
     display: "none"
   }
 });
+const brightFont = {
+  fontWeight: 700
+};
 
 class Answer extends React.Component {
   state = {
@@ -76,7 +78,12 @@ class Answer extends React.Component {
     anchor: "left",
     answerSumLength: 0,
     questionOrderArray: [],
-    questionInfo: {}
+    questionInfo: {},
+    questionId: 0,
+    submitAnswerMessage: ``,
+    choiceSolution: ``,
+    answerSolution: ``,
+    answerQuestionStatus: false
   };
 
   handleDrawerOpen = () => {
@@ -93,61 +100,65 @@ class Answer extends React.Component {
     });
   };
   displayQuestion = number => {
-    axios
-      .get(`/v1/exam/${number}`, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          authentication: `${localStorage.getItem("token")}`
-        }
-      })
-      .then(res => {
-        const {
-          status,
-          data: { ...data }
-        } = res.data;
-        if (status === 200) {
-          console.log(data);
-        }
-      });
-  };
-  changeQuestionOrder = item => {
-    this.displayQuestion(item);
-  };
-  async componentDidMount() {
-    await axios.get(`/v1/exam/`, {
-      headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-        authentication: `${localStorage.getItem("token")}`
+    api.getQuestionDetail(`/v1/exam/${number}`).then(res => {
+      const {
+        status,
+        data: { ...data }
+      } = res.data;
+      if (status === 200) {
+        this.setState({ questionInfo: data, questionId: number });
       }
     });
-    await axios
-      .get(`/v1/exam/0`, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-          authentication: `${localStorage.getItem("token")}`
+    this.checkQuestionHasAnswer(number);
+  };
+  async changeQuestionOrder(item) {
+    await this.displayQuestion(item);
+    await this.checkQuestionHasAnswer(item);
+  }
+  /** 检查是否作答的函数 */
+  checkQuestionHasAnswer = number => {
+    api.getQuestionAnswerDetail(`/v1/exam/answer/${number}`).then(res => {
+      const {
+        status,
+        data: { answer }
+      } = res.data;
+      if (status === 200) {
+        if (answer !== null) {
+          let filterAnswerChoice = answer.split(`€`)[0];
+          let filterAnswer = answer.split(`€`)[1];
+          this.setState({
+            choiceSolution: filterAnswerChoice,
+            answerSolution: filterAnswer,
+            answerQuestionStatus: true
+          });
         }
-      })
-      .then(res => {
-        const {
-          status,
-          data: { ...data }
-        } = res.data;
-        if (status === 200) {
-          console.log(data.question);
-          let questionOrderArray = [];
-          for (let i = 0; i < data.questionSize; i++) {
-            questionOrderArray.push(i);
-          }
-          this.setState(
-            {
-              questionOrderArray: questionOrderArray,
-              questionInfo: data,
-              answerSumLength: data.questionSize
-            },
-            () => console.log(this.state.questionInfo)
-          );
+        this.setState({
+          submitAnswerMessage: answer === null ? "本题作答成功" : "本题修改成功"
+        });
+      }
+    });
+  };
+  async componentDidMount() {
+    await api.getQuestionSession();
+    await api.getQuestionDetail(`/v1/exam/0`).then(res => {
+      const {
+        status,
+        data: { ...data }
+      } = res.data;
+      if (status === 200) {
+        let questionOrderArray = [];
+        for (let i = 0; i < data.questionSize; i++) {
+          questionOrderArray.push(i);
         }
-      });
+        this.setState({
+          questionOrderArray: questionOrderArray,
+          questionInfo: data,
+          answerSumLength: data.questionSize,
+          questionId: 0
+        });
+      }
+    });
+    await this.checkQuestionHasAnswer(0);
   }
   render() {
     const { classes } = this.props;
@@ -162,7 +173,7 @@ class Answer extends React.Component {
             this.changeQuestionOrder(item);
           }}
         >
-          第{item + 1}题
+          第{item + 1}题 ({this.state.answerQuestionStatus ? "已作答" : "未回答"})
         </Button>
         <Divider />
       </div>
@@ -172,7 +183,7 @@ class Answer extends React.Component {
         <MuiThemeProvider theme={theme}>
           <AppBar position="absolute" className={classes.appBar}>
             <Toolbar>
-              <Typography color="inherit" noWrap>
+              <Typography color="inherit" noWrap style={brightFont}>
                 答题卡
               </Typography>
             </Toolbar>
@@ -193,11 +204,14 @@ class Answer extends React.Component {
               {/* 题目内容 */}
               <QuestionCard
                 callBack={this.displayQuestion}
-                questionInfo={this.state.questionInfo}
+                questionInfo={this.state.questionInfo.question}
+                questionId={this.state.questionId}
+                submitAnswerMessage={this.state.submitAnswerMessage}
+                answerSolution={this.state.answerSolution}
+                choiceSolution={this.state.choiceSolution}
               />
             </Typography>
           </main>
-          <FAB />
         </MuiThemeProvider>
       </div>
     );

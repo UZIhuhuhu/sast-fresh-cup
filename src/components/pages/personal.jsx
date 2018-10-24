@@ -7,7 +7,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
-import axios from "axios";
+import Alert from "../plugin/alert";
 import api from "../../api/index";
 const styles = theme => ({
   container: {
@@ -43,7 +43,10 @@ class Personal extends React.Component {
   state = {
     telePhone: ``,
     department: ``,
-    userName: ``
+    userName: ``,
+    modifyPersonalInfoStatus: false,
+    modifyPersonalInfoStatusCode: 0,
+    errMsg: ``
   };
   modifyTelePhone = event => {
     const { value } = event.target;
@@ -57,66 +60,40 @@ class Personal extends React.Component {
       department: value
     });
   };
-  isTelePhoneAndDeparmentUpdated = () => {};
   modifyPersonalInformationRequest = () => {
     const { telePhone, department } = this.state;
     const postData = { phoneNumber: telePhone, targetDepartment: department };
-    api.modify(postData).then(res => console.log(res.data));
-    // axios({
-    //   method:'patch',
-    //   url:'/v1/user_info',
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     authentication: localStorage.getItem("token")
-    //   },
-    //   data: JSON.stringify(postData)
-    // }).then(res => {
-    //   console.log(res)
-    // })
-    // axios
-    //   .patch(`/v1/user_info`, {
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       authentication: localStorage.getItem("token")
-    //     },
-    //     data: JSON.stringify(postData)
-    //   })
-    //   .then(res => {
-    //     const {
-    //       data: { ...data }
-    //     } = res;
-    //     console.log(data);
-    //   });
+    api.modifyPersonalInfo(postData).then(res => {
+      const { status, desc } = res.data;
+      this.setState({
+        modifyPersonalInfoStatusCode: status,
+        modifyPersonalInfoStatus: true
+      });
+      if (status !== 200) this.setState({ errMsg: desc });
+    });
   };
   componentDidMount() {
-    axios
-      .get(`/v1/user_info`, {
-        headers: {
-          "Content-Type": "application/json",
-          authentication: `${localStorage.getItem("token")}`
+    api.getPersonalInfo().then(res => {
+      const {
+        status,
+        data: { ...data }
+      } = res.data;
+      if (status === 200) {
+        const { username, phoneNumber, targetDepartment, authority } = data;
+        localStorage.setItem("department", data.targetDepartment);
+        this.setState({
+          userName: username,
+          telePhone: phoneNumber,
+          department: targetDepartment
+        });
+        this.judgeCommonUserOrAdmin(authority);
+        this.getInforSuccess();
+      } else {
+        if (status === 404) {
+          this.props.loginInfoFail();
         }
-      })
-      .then(res => {
-        const {
-          status,
-          data: { ...data }
-        } = res.data;
-        if (status === 200) {
-          const { username, phoneNumber, targetDepartment, authority } = data;
-          localStorage.setItem("department", data.targetDepartment);
-          this.setState({
-            userName: username,
-            telePhone: phoneNumber,
-            department: targetDepartment
-          });
-          this.judgeCommonUserOrAdmin(authority);
-          this.getInforSuccess();
-        } else {
-          if (status === 404) {
-            this.props.loginInfoFail();
-          }
-        }
-      });
+      }
+    });
   }
   getInforSuccess = () => {
     this.props.callBack();
@@ -124,10 +101,28 @@ class Personal extends React.Component {
   judgeCommonUserOrAdmin(identity) {
     localStorage.setItem("authority", identity);
   }
+  modifyAlertHandle = () => {
+    if (this.state.modifyPersonalInfoStatus) {
+      this.setState({
+        modifyPersonalInfoStatus: false
+      });
+    }
+  };
   render() {
     const { classes } = this.props;
     return (
       <div className="container content-container">
+        {this.state.modifyPersonalInfoStatus ? (
+          <Alert
+            hintMessage={
+              this.state.modifyPersonalInfoStatusCode === 200
+                ? "修改信息成功"
+                : this.state.errMsg
+            }
+            open={this.state.modifyPersonalInfoStatus}
+            callBack={this.modifyAlertHandle}
+          />
+        ) : null}
         <h2>个人信息</h2>
         <div className="form-container">
           <form className={classes.container} noValidate autoComplete="off">
