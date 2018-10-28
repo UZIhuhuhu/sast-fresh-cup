@@ -74,9 +74,13 @@ TablePaginationActions.propTypes = {
 const TablePaginationActionsWrapped = withStyles(actionsStyles, { withTheme: true })(TablePaginationActions)
 
 let counter = 0
-function createData(questionId, user, answer, score) {
+function createData(questionId, id, answer, score) {
   counter += 1
-  return { id: counter, questionId, user, answer, score }
+  return { id: counter, questionId, id, answer, score }
+}
+function createQuestionData(questionId, user, username, answer, score) {
+  counter += 1
+  return { id: counter, questionId, user, username, answer, score }
 }
 
 function desc(a, b, orderBy) {
@@ -105,7 +109,8 @@ function getSorting(order, orderBy) {
 
 const rows = [
   { id: 'questionId', numeric: false, disablePadding: true, label: 'QuestionId' },
-  { id: 'user', numeric: false, disablePadding: false, label: 'User' },
+  { id: 'ID', numeric: false, disablePadding: false, label: 'ID' },
+  { id: 'Username', numeric: false, disablePadding: false, label: 'Username' },
   { id: 'answer', numeric: false, disablePadding: false, label: 'Answer' },
   { id: 'score', numeric: false, disablePadding: false, label: 'Score' }
 ]
@@ -268,8 +273,7 @@ class Correct extends React.Component {
     showCheckbox: true,
     showScoreTextField: false,
     alertStatus: false,
-    alertText: '',
-    isLastPage: true
+    alertText: ''
   }
   handleRequestSort = (event, property) => {
     const orderBy = property
@@ -300,8 +304,7 @@ class Correct extends React.Component {
   }
 
   handleChangePage = (event, page) => {
-    this.setState({ page })
-    if (!this.state.showCheckbox && !this.state.isLastPage) {
+    if (!this.state.showCheckbox) {
       this.getQuestionInfoRequest(page)
     }
   }
@@ -323,8 +326,11 @@ class Correct extends React.Component {
     })
   }
 
-  getQuestionInfoRequest = () => {
-    const { questionId, radioValue, page, rowsPerPage } = this.state
+  getQuestionInfoRequest = page => {
+    if (typeof page !== 'number') {
+      page = this.state.page
+    }
+    const { questionId, radioValue, rowsPerPage } = this.state
     this.setState({
       data: []
     })
@@ -353,7 +359,7 @@ class Correct extends React.Component {
 
   getQuestionInfoByIdRequest = id => {
     api.getQuestionInfo('/v1/question/' + id).then(res => {
-      if (res.status === 200 && res.data.data) {
+      if (res.data.status === 200) {
         let data = []
         let questionId = res.data.data.id
         let choices = res.data.data.choices
@@ -411,19 +417,17 @@ class Correct extends React.Component {
     }
   }
   setQuestionData = res => {
-    if (res.status === 200 && res.data.data.answers) {
+    if (res.data.status === 200) {
       let answers = res.data.data.answers
-      let isLastPage = res.data.data.isLastPage
       let data = []
       answers.map(item => {
         let row = []
         let answer = item.answer.split('€')
-        row.push(item.question_id, item.username, '【' + answer[0] + '】 ' + answer[1], item.score)
-        data.push(createData(...row))
+        row.push(item.question_id, item.user_id, item.username, '【' + answer[0] + '】 ' + answer[1], item.score)
+        data.push(createQuestionData(...row))
       })
       this.setState({
-        data: data,
-        isLastPage: isLastPage
+        data: data
       })
     } else {
       this.setState({
@@ -434,7 +438,7 @@ class Correct extends React.Component {
   }
   getAllQuestionIdRequest = () => {
     api.getQuestionId().then(res => {
-      if (res.data.status === 200 && res.data.data) {
+      if (res.data.status === 200) {
         let questions = res.data.data
         let data = []
         questions.map(item => {
@@ -571,6 +575,7 @@ class Correct extends React.Component {
                           {n.questionId}
                         </TableCell>
                         <TableCell>{n.user}</TableCell>
+                        <TableCell>{n.username}</TableCell>
                         <TableCell>{n.answer}</TableCell>
                         <TableCell>
                           {!this.state.showCheckbox && this.state.showScoreTextField ? (
