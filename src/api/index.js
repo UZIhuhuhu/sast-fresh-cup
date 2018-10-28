@@ -35,6 +35,28 @@ class API {
       authentication: localStorage.getItem("token")
     }
   });
+  getQuestionId = () => instance.get('/v1/grade', {
+    headers: {
+      'content-type': 'application/json',
+      authentication: localStorage.getItem("token")
+    }
+  })
+  deleteQuestion = questionId => instance.delete('/v1/question/' + questionId, {
+    headers: {
+      authentication: localStorage.getItem("token")
+    }
+  })
+  getQuestionInfo = url => instance.get(url, {
+    headers: {
+      authentication: localStorage.getItem("token")
+    }
+  })
+  submitScore = postData => instance.post('/v1/grade', postData, {
+    headers: {
+      'content-type': 'application/json',
+      authentication: localStorage.getItem("token")
+    }
+  })
 }
 
 const api = new API();
