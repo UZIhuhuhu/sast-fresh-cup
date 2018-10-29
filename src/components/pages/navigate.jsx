@@ -13,6 +13,8 @@ import Login from "./login";
 import Homepage from "./homepage";
 import Personal from "./personal";
 import Answer from "./answer";
+import Admin from "./admin"
+import Correct from "./correct"
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 const theme = createMuiTheme({
   palette: {
@@ -197,6 +199,8 @@ class Navigate extends React.Component {
         ) : null}
         {this.state.navigateIndex === `notice` ? <Notice /> : null}
         {this.state.navigateIndex === `answer` ? <Answer /> : null}
+        {this.state.navigateIndex === `admin` ? <Admin /> : null}
+        {this.state.navigateIndex === `correct` ? <Correct /> : null}
       </div>
     );
   }
