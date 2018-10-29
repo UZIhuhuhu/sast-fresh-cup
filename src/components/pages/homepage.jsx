@@ -1,6 +1,6 @@
 import React from "react";
 import Register from "./register";
-import Admin from "./admin";
+// import Admin from "./admin";
 export default class Homepage extends React.Component {
   state = {
     navigateStatus: false
