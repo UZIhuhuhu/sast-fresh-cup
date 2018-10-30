@@ -3,8 +3,6 @@ import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 import EditIcon from "@material-ui/icons/Edit";
-// import Right from "@material-ui/icons/ArrowForward";
-// import Send from "@material-ui/icons/Send";
 
 const styles = theme => ({
   button: {
