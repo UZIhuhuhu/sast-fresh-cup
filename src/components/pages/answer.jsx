@@ -124,12 +124,22 @@ class Answer extends React.Component {
       } = res.data;
       if (status === 200) {
         if (answer !== null) {
+          let questionOrderArray = this.state.questionOrderArray;
+          questionOrderArray[number].answerStatus = true;
+          this.setState({
+            questionOrderArray: questionOrderArray
+          });
           let filterAnswerChoice = answer.split(`€`)[0];
           let filterAnswer = answer.split(`€`)[1];
           this.setState({
             choiceSolution: filterAnswerChoice,
             answerSolution: filterAnswer,
             answerQuestionStatus: true
+          });
+        } else {
+          this.setState({
+            choiceSolution: "",
+            answerSolution: ""
           });
         }
         this.setState({
@@ -139,6 +149,7 @@ class Answer extends React.Component {
     });
   };
   async componentDidMount() {
+    console.log(this.state.answerStatus);
     await api.getQuestionSession();
     await api.getQuestionDetail(`/v1/exam/0`).then(res => {
       const {
@@ -148,7 +159,10 @@ class Answer extends React.Component {
       if (status === 200) {
         let questionOrderArray = [];
         for (let i = 0; i < data.questionSize; i++) {
-          questionOrderArray.push(i);
+          questionOrderArray[i] = {
+            order: i,
+            answerStatus: false
+          };
         }
         this.setState({
           questionOrderArray: questionOrderArray,
@@ -163,17 +177,17 @@ class Answer extends React.Component {
   render() {
     const { classes } = this.props;
     const questionOrder = this.state.questionOrderArray.map(item => (
-      <div key={item.toString()}>
+      <div key={item.order.toString()}>
         <Button
           className={classes.button}
-          key={item.toString()}
+          // key={item.toString()}
           // eslint-disable-next-line
           className="questionOrderButton"
           onClick={() => {
-            this.changeQuestionOrder(item);
+            this.changeQuestionOrder(item.order);
           }}
         >
-          第{item + 1}题 ({this.state.answerQuestionStatus ? "已作答" : "未回答"})
+          第{item.order + 1}题 ({item.answerStatus ? "已作答" : "未回答"})
         </Button>
         <Divider />
       </div>

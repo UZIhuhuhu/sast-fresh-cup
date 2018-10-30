@@ -8,7 +8,6 @@ import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Button from "@material-ui/core/Button";
 import Alert from "../plugin/alert";
-// import Loading from "../plugin/loading";
 import api from "../../api/index";
 const styles = theme => ({
   root: {

@@ -46,13 +46,6 @@ class NoticeMessage extends React.Component {
             </Typography>
           </ExpansionPanelDetails>
         </ExpansionPanel>
-        {/* <ExpansionPanel disabled>
-          <ExpansionPanelSummary expandIcon={<ExpandMoreIcon />}>
-            <Typography className={classes.heading}>
-              Disabled Expansion Panel
-            </Typography>
-          </ExpansionPanelSummary>
-        </ExpansionPanel> */}
       </div>
     );
   }
