@@ -13,8 +13,8 @@ import Login from "./login";
 import Homepage from "./homepage";
 import Personal from "./personal";
 import Answer from "./answer";
-import Admin from "./admin"
-import Correct from "./correct"
+import Admin from "./admin";
+import Correct from "./correct";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 const theme = createMuiTheme({
   palette: {

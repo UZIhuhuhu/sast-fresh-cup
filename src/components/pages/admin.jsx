@@ -1,5 +1,4 @@
 import React from "react";
-// import PropTypes from 'prop-types'
 import classNames from "classnames";
 import TextField from "@material-ui/core/TextField";
 import { withStyles } from "@material-ui/core/styles";
@@ -9,7 +8,6 @@ import CloudUploadIcon from "@material-ui/icons/CloudUpload";
 import Alert from "../plugin/alert";
 import api from "../../api/index.js";
 import "../../style/admin.css";
-// import qs from 'qs'
 
 const styles = theme => ({
   container: {
