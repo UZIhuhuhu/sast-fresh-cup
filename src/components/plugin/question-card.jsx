@@ -60,7 +60,8 @@ class QuestionCard extends React.Component {
     answerStatus: false,
     solutionChild: [],
     makeChoiceStatus: false,
-    makeAnswerStatus: false
+    makeAnswerStatus: false,
+    emptyAnswerStatus: false
   };
   questionChoiceHandle = value => {
     this.setState({ checkedAnswer: value.choice, makeChoiceStatus: true });
@@ -82,19 +83,32 @@ class QuestionCard extends React.Component {
           : this.props.answerSolution[0]
       }`
     };
-    api.answerQuestion(JSON.stringify(answerString)).then(res => {
-      const { status, desc } = res.data;
-      this.setState({
-        answerStatusCode: status,
-        answerStatus: true
+    if (this.state.textAreaAnswer !== null) {
+      api.answerQuestion(JSON.stringify(answerString)).then(res => {
+        const { status, desc } = res.data;
+        this.setState({
+          answerStatusCode: status,
+          answerStatus: true
+        });
+        if (status !== 200) this.setState({ errMsg: desc });
+        this.setState({ textAreaAnswer: null });
+        this.props.callBack();
       });
-      if (status !== 200) this.setState({ errMsg: desc });
-    });
+    } else {
+      this.setState({ emptyAnswerStatus: true });
+    }
   };
   answerAlertHandle = () => {
     if (this.state.answerStatus) {
       this.setState({
         answerStatus: false
+      });
+    }
+  };
+  emptyAnswerAlertHandle = () => {
+    if (this.state.emptyAnswerStatus) {
+      this.setState({
+        emptyAnswerStatus: false
       });
     }
   };
@@ -137,6 +151,15 @@ class QuestionCard extends React.Component {
     }
     return (
       <div>
+        {this.state.emptyAnswerStatus ? (
+          <Alert
+            hintMessage={
+              answerSolution ? "没有做任何修改哦" : "还没有回答问题哦"
+            }
+            open={this.state.emptyAnswerStatus}
+            callBack={this.emptyAnswerAlertHandle}
+          />
+        ) : null}
         {this.state.answerStatus && submitAnswerMessage ? (
           <Alert
             hintMessage={

@@ -11,6 +11,7 @@ import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import QuestionCard from "../plugin/question-card";
 import "../../style/answer.css";
 import api from "../../api/index";
+import debounce from "../../utils/debounce";
 const drawerWidth = 240;
 const theme = createMuiTheme({
   overrides: {
@@ -82,8 +83,7 @@ class Answer extends React.Component {
     questionId: 0,
     submitAnswerMessage: ``,
     choiceSolution: ``,
-    answerSolution: ``,
-    answerQuestionStatus: false
+    answerSolution: ``
   };
 
   handleDrawerOpen = () => {
@@ -126,15 +126,12 @@ class Answer extends React.Component {
         if (answer !== null) {
           let questionOrderArray = this.state.questionOrderArray;
           questionOrderArray[number].answerStatus = true;
-          this.setState({
-            questionOrderArray: questionOrderArray
-          });
+          this.setState({ questionOrderArray: questionOrderArray });
           let filterAnswerChoice = answer.split(`€`)[0];
           let filterAnswer = answer.split(`€`)[1];
           this.setState({
             choiceSolution: filterAnswerChoice,
-            answerSolution: filterAnswer,
-            answerQuestionStatus: true
+            answerSolution: filterAnswer
           });
         } else {
           this.setState({
@@ -149,7 +146,6 @@ class Answer extends React.Component {
     });
   };
   async componentDidMount() {
-    console.log(this.state.answerStatus);
     await api.getQuestionSession();
     await api.getQuestionDetail(`/v1/exam/0`).then(res => {
       const {
@@ -180,12 +176,11 @@ class Answer extends React.Component {
       <div key={item.order.toString()}>
         <Button
           className={classes.button}
-          // key={item.toString()}
           // eslint-disable-next-line
           className="questionOrderButton"
-          onClick={() => {
+          onClick={debounce(() => {
             this.changeQuestionOrder(item.order);
-          }}
+          })}
         >
           第{item.order + 1}题 ({item.answerStatus ? "已作答" : "未回答"})
         </Button>
@@ -217,7 +212,9 @@ class Answer extends React.Component {
             <Typography noWrap>
               {/* 题目内容 */}
               <QuestionCard
-                callBack={this.displayQuestion}
+                callBack={() => {
+                  this.displayQuestion(this.state.questionId);
+                }}
                 questionInfo={this.state.questionInfo.question}
                 questionId={this.state.questionId}
                 submitAnswerMessage={this.state.submitAnswerMessage}
