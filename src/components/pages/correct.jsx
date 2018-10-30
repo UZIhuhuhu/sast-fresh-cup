@@ -4,6 +4,7 @@ import classNames from 'classnames'
 import { withStyles } from '@material-ui/core/styles'
 import TextField from '@material-ui/core/TextField'
 import Button from '@material-ui/core/Button'
+import DeleteIcon from '@material-ui/icons/Delete'
 import Radio from '@material-ui/core/Radio'
 import RadioGroup from '@material-ui/core/RadioGroup'
 import FormControlLabel from '@material-ui/core/FormControlLabel'
@@ -12,66 +13,21 @@ import Table from '@material-ui/core/Table'
 import TableBody from '@material-ui/core/TableBody'
 import TableCell from '@material-ui/core/TableCell'
 import TableHead from '@material-ui/core/TableHead'
-import TablePagination from '@material-ui/core/TablePagination'
-import TableFooter from '@material-ui/core/TableFooter'
 import TableRow from '@material-ui/core/TableRow'
 import TableSortLabel from '@material-ui/core/TableSortLabel'
 import Toolbar from '@material-ui/core/Toolbar'
 import Typography from '@material-ui/core/Typography'
 import Checkbox from '@material-ui/core/Checkbox'
 import Tooltip from '@material-ui/core/Tooltip'
-import DeleteIcon from '@material-ui/icons/Delete'
 import FilterListIcon from '@material-ui/icons/FilterList'
 import { lighten } from '@material-ui/core/styles/colorManipulator'
 import Paper from '@material-ui/core/Paper'
 import IconButton from '@material-ui/core/IconButton'
 import Alert from '../plugin/alert'
 import api from '../../api/index.js'
+import '../../style/admin.css'
 import KeyboardArrowLeft from '@material-ui/icons/KeyboardArrowLeft'
 import KeyboardArrowRight from '@material-ui/icons/KeyboardArrowRight'
-import admin from '../../style/admin.css'
-
-const actionsStyles = theme => ({
-  root: {
-    flexShrink: 0,
-    color: theme.palette.text.secondary,
-    marginLeft: theme.spacing.unit * 2.5
-  }
-})
-
-class TablePaginationActions extends React.Component {
-  handleBackButtonClick = event => {
-    this.props.onChangePage(event, this.props.page - 1)
-  }
-
-  handleNextButtonClick = event => {
-    this.props.onChangePage(event, this.props.page + 1)
-  }
-
-  render() {
-    const { classes, page, theme } = this.props
-
-    return (
-      <div className={classes.root}>
-        <IconButton onClick={this.handleBackButtonClick} disabled={page === 0} aria-label="Previous Page">
-          {theme.direction === 'rtl' ? <KeyboardArrowRight /> : <KeyboardArrowLeft />}
-        </IconButton>
-        <IconButton onClick={this.handleNextButtonClick} aria-label="Next Page">
-          {theme.direction === 'rtl' ? <KeyboardArrowLeft /> : <KeyboardArrowRight />}
-        </IconButton>
-      </div>
-    )
-  }
-}
-
-TablePaginationActions.propTypes = {
-  classes: PropTypes.object.isRequired,
-  onChangePage: PropTypes.func.isRequired,
-  page: PropTypes.number.isRequired,
-  theme: PropTypes.object.isRequired
-}
-
-const TablePaginationActionsWrapped = withStyles(actionsStyles, { withTheme: true })(TablePaginationActions)
 
 let counter = 0
 function createData(questionId, id, answer, score) {
@@ -273,7 +229,9 @@ class Correct extends React.Component {
     showCheckbox: true,
     showScoreTextField: false,
     alertStatus: false,
-    alertText: ''
+    alertText: '',
+    disableNextIcon: false,
+    maxPage: 0
   }
   handleRequestSort = (event, property) => {
     const orderBy = property
@@ -303,7 +261,23 @@ class Correct extends React.Component {
     this.setState({ selected: newSelected })
   }
 
-  handleChangePage = (event, page) => {
+  toPreviousPage = () => {
+    let page = this.state.page - 1
+    this.setState({
+      page: page,
+      disableNextIcon: false
+    })
+    if (!this.state.showCheckbox) {
+      this.getQuestionInfoRequest(page)
+    }
+  }
+
+  toNextPage = () => {
+    let page = this.state.page + 1
+    this.setState({
+      page: page,
+      disableNextIcon: false
+    })
     if (!this.state.showCheckbox) {
       this.getQuestionInfoRequest(page)
     }
@@ -327,17 +301,20 @@ class Correct extends React.Component {
   }
 
   getQuestionInfoRequest = page => {
-    if (typeof page !== 'number') {
-      page = this.state.page
-    }
     const { questionId, radioValue, rowsPerPage } = this.state
-    this.setState({
-      data: []
-    })
+    let status = typeof page !== 'number'
+    if (status) {
+      page = 0
+      this.setState({
+        page: 0,
+        data: [],
+        disableNextIcon: false
+      })
+    }
     if (questionId) {
       if (questionId && !radioValue) {
         this.getQuestionInfoByIdRequest(questionId)
-      } else if (questionId && radioValue) {
+      } else if ((questionId && radioValue && page > this.state.maxPage) || (page === 0 && status)) {
         let prop = {
           questionId: questionId,
           pageNum: page + 1,
@@ -348,6 +325,9 @@ class Correct extends React.Component {
           showScoreTextField: true
         })
         this.getQuestionInfoByStatusRequest(prop)
+        this.setState({
+          maxPage: page
+        })
       }
       this.setState({
         showCheckbox: false
@@ -419,20 +399,21 @@ class Correct extends React.Component {
   setQuestionData = res => {
     if (res.data.status === 200) {
       let answers = res.data.data.answers
-      let data = []
-      answers.map(item => {
+      let newData = []
+      let data = this.state.data
+      answers.forEach(item => {
         let row = []
         let answer = item.answer.split('€')
         row.push(item.question_id, item.user_id, item.username, '【' + answer[0] + '】 ' + answer[1], item.score)
-        data.push(createQuestionData(...row))
+        newData.push(createQuestionData(...row))
       })
+      data = data.concat(newData)
       this.setState({
         data: data
       })
-    } else {
+    } else if (res.data.status === 404) {
       this.setState({
-        alertStatus: true,
-        alertText: '啥也没找到鸭'
+        disableNextIcon: true
       })
     }
   }
@@ -516,7 +497,6 @@ class Correct extends React.Component {
   render() {
     const { classes } = this.props
     const { data, order, orderBy, selected, rowsPerPage, page } = this.state
-    const emptyRows = rowsPerPage - Math.min(rowsPerPage, data.length - page * rowsPerPage)
 
     return (
       <div className="correct-container">
@@ -585,33 +565,23 @@ class Correct extends React.Component {
                       </TableRow>
                     )
                   })}
-                {emptyRows > 0 && (
-                  <TableRow style={{ height: 49 * emptyRows }}>
-                    <TableCell colSpan={6} />
-                  </TableRow>
-                )}
               </TableBody>
             </Table>
           </div>
-          <TableFooter>
-            <TableRow>
-              <TablePagination
-                colSpan={3}
-                count={data.length}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onChangePage={this.handleChangePage}
-                onChangeRowsPerPage={this.handleChangeRowsPerPage}
-                ActionsComponent={TablePaginationActionsWrapped}
-              />
-              {!this.state.showCheckbox && this.state.showScoreTextField ? (
-                <Button variant="contained" color="primary" className={classes.button} onClick={this.submitScoreRequest}>
-                  提交
-                </Button>
-              ) : null}
-            </TableRow>
-          </TableFooter>
         </Paper>
+        <div className="tableFooter">
+          <IconButton disabled={page === 0} aria-label="Previous Page" onClick={this.toPreviousPage}>
+            <KeyboardArrowLeft />
+          </IconButton>
+          {!this.state.showCheckbox && this.state.showScoreTextField ? (
+            <Button className="submitScoreBtn" variant="contained" color="primary" className={classes.button} onClick={this.submitScoreRequest}>
+              上传成绩
+            </Button>
+          ) : null}
+          <IconButton disabled={this.state.disableNextIcon} aria-label="Next Page" onClick={this.toNextPage}>
+            <KeyboardArrowRight />
+          </IconButton>
+        </div>
       </div>
     )
   }
