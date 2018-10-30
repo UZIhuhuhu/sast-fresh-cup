@@ -8,9 +8,7 @@ import Button from '@material-ui/core/Button'
 import CloudUploadIcon from '@material-ui/icons/CloudUpload'
 import Alert from '../plugin/alert'
 import api from '../../api/index.js'
-import admin from '../../style/admin.css'
-import axios from 'axios'
-import qs from 'qs'
+import "../../style/admin.css";
 
 const styles = theme => ({
   container: {
