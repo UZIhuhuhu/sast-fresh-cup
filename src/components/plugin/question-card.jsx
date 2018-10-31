@@ -128,8 +128,7 @@ class QuestionCard extends React.Component {
       questionId,
       submitAnswerMessage,
       choiceSolution,
-      answerSolution,
-      questionOrderArray
+      answerSolution
     } = this.props;
     /**
      * choiceSolution => 选项的回答
@@ -199,26 +198,22 @@ class QuestionCard extends React.Component {
             <Button size="small">题目选项以及答题框:</Button>
           </CardActions>
           {questionInfo ? checkboxList : null}
-          {questionOrderArray !== null ? (
-            <TextField
-              id="outlined-multiline-flexible"
-              label="答题框(选项的解释或者代码)"
-              multiline
-              // rowsMax="4"
-              value={
-                this.state.textAreaAnswer !== null
-                  ? !questionOrderArray[questionId].answerStatus
-                    ? this.state.textAreaAnswer
-                    : answerSolution
-                  : answerSolution
-              }
-              onChange={this.textAreaHandle}
-              className={classes.textField}
-              margin="normal"
-              variant="outlined"
-              style={textarea}
-            />
-          ) : null}
+
+          <TextField
+            id="outlined-multiline-flexible"
+            label="答题框(选项的解释或者代码)"
+            multiline
+            value={
+              this.state.textAreaAnswer !== null
+                ? this.state.textAreaAnswer
+                : answerSolution
+            }
+            onChange={this.textAreaHandle}
+            className={classes.textField}
+            margin="normal"
+            variant="outlined"
+            style={textarea}
+          />
         </Card>
         <FAB
           callBack={() => {
