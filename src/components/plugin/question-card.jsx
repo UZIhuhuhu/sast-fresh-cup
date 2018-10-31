@@ -61,7 +61,8 @@ class QuestionCard extends React.Component {
     solutionChild: [],
     makeChoiceStatus: false,
     makeAnswerStatus: false,
-    emptyAnswerStatus: false
+    emptyAnswerStatus: false,
+    clickedTheButton: false
   };
   questionChoiceHandle = value => {
     this.setState({ checkedAnswer: value.choice, makeChoiceStatus: true });
@@ -71,6 +72,7 @@ class QuestionCard extends React.Component {
     this.setState({ textAreaAnswer: value, makeAnswerStatus: true });
   };
   navigateToNextQuestion = index => {
+    this.setState({ clickedTheButton: true });
     const answerString = {
       questionId: index,
       answer: `${
@@ -112,6 +114,13 @@ class QuestionCard extends React.Component {
       });
     }
   };
+  componentDidUpdate(prevProps) {
+    if (this.props.questionInfo !== prevProps.questionInfo) {
+      this.setState({
+        textAreaAnswer: null
+      });
+    }
+  }
   render() {
     const {
       classes,
@@ -119,7 +128,8 @@ class QuestionCard extends React.Component {
       questionId,
       submitAnswerMessage,
       choiceSolution,
-      answerSolution
+      answerSolution,
+      questionOrderArray
     } = this.props;
     /**
      * choiceSolution => 选项的回答
@@ -189,22 +199,26 @@ class QuestionCard extends React.Component {
             <Button size="small">题目选项以及答题框:</Button>
           </CardActions>
           {questionInfo ? checkboxList : null}
-          <TextField
-            id="outlined-multiline-flexible"
-            label="答题框(选项的解释或者代码)"
-            multiline
-            rowsMax="4"
-            value={
-              this.state.textAreaAnswer !== null
-                ? this.state.textAreaAnswer
-                : answerSolution
-            }
-            onChange={this.textAreaHandle}
-            className={classes.textField}
-            margin="normal"
-            variant="outlined"
-            style={textarea}
-          />
+          {questionOrderArray !== null ? (
+            <TextField
+              id="outlined-multiline-flexible"
+              label="答题框(选项的解释或者代码)"
+              multiline
+              // rowsMax="4"
+              value={
+                this.state.textAreaAnswer !== null
+                  ? !questionOrderArray[questionId].answerStatus
+                    ? this.state.textAreaAnswer
+                    : answerSolution
+                  : answerSolution
+              }
+              onChange={this.textAreaHandle}
+              className={classes.textField}
+              margin="normal"
+              variant="outlined"
+              style={textarea}
+            />
+          ) : null}
         </Card>
         <FAB
           callBack={() => {

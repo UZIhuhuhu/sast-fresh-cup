@@ -215,6 +215,7 @@ class Answer extends React.Component {
                 callBack={() => {
                   this.displayQuestion(this.state.questionId);
                 }}
+                questionOrderArray={this.state.questionOrderArray}
                 questionInfo={this.state.questionInfo.question}
                 questionId={this.state.questionId}
                 submitAnswerMessage={this.state.submitAnswerMessage}
