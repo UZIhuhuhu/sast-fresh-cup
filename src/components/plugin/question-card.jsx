@@ -61,7 +61,8 @@ class QuestionCard extends React.Component {
     solutionChild: [],
     makeChoiceStatus: false,
     makeAnswerStatus: false,
-    emptyAnswerStatus: false
+    emptyAnswerStatus: false,
+    clickedTheButton: false
   };
   questionChoiceHandle = value => {
     this.setState({ checkedAnswer: value.choice, makeChoiceStatus: true });
@@ -71,6 +72,7 @@ class QuestionCard extends React.Component {
     this.setState({ textAreaAnswer: value, makeAnswerStatus: true });
   };
   navigateToNextQuestion = index => {
+    this.setState({ clickedTheButton: true });
     const answerString = {
       questionId: index,
       answer: `${
@@ -112,6 +114,13 @@ class QuestionCard extends React.Component {
       });
     }
   };
+  componentDidUpdate(prevProps) {
+    if (this.props.questionInfo !== prevProps.questionInfo) {
+      this.setState({
+        textAreaAnswer: null
+      });
+    }
+  }
   render() {
     const {
       classes,
@@ -189,11 +198,11 @@ class QuestionCard extends React.Component {
             <Button size="small">题目选项以及答题框:</Button>
           </CardActions>
           {questionInfo ? checkboxList : null}
+
           <TextField
             id="outlined-multiline-flexible"
             label="答题框(选项的解释或者代码)"
             multiline
-            rowsMax="4"
             value={
               this.state.textAreaAnswer !== null
                 ? this.state.textAreaAnswer
