@@ -11,9 +11,11 @@ import TextField from "@material-ui/core/TextField";
 import FAB from "../plugin/FAB";
 import Alert from "../plugin/alert";
 import api from "../../api/index";
+import "../../style/index.css";
+const ReactMarkdown = require("react-markdown/with-html");
 const styles = theme => ({
   card: {
-    minWidth: 275
+    // minWidth: 275
   },
   bullet: {
     display: "inline-block",
@@ -46,10 +48,14 @@ const styles = theme => ({
   }
 });
 const textarea = {
-  minWidth: `25rem`,
+  minWidth: `60vw`,
   marginBottom: `2rem`
 };
 class QuestionCard extends React.Component {
+  // constructor(props) {
+  //   super(props);
+  //   this.answerTextField = React.createRef();
+  // }
   state = {
     checked: true,
     title: ``,
@@ -102,23 +108,17 @@ class QuestionCard extends React.Component {
   };
   answerAlertHandle = () => {
     if (this.state.answerStatus) {
-      this.setState({
-        answerStatus: false
-      });
+      this.setState({ answerStatus: false });
     }
   };
   emptyAnswerAlertHandle = () => {
     if (this.state.emptyAnswerStatus) {
-      this.setState({
-        emptyAnswerStatus: false
-      });
+      this.setState({ emptyAnswerStatus: false });
     }
   };
   componentDidUpdate(prevProps) {
     if (this.props.questionInfo !== prevProps.questionInfo) {
-      this.setState({
-        textAreaAnswer: null
-      });
+      this.setState({ textAreaAnswer: null });
     }
   }
   render() {
@@ -130,11 +130,13 @@ class QuestionCard extends React.Component {
       choiceSolution,
       answerSolution
     } = this.props;
+
     /**
      * choiceSolution => 选项的回答
      * answerSolution => 答题框的回答
      */
     if (questionInfo !== undefined) {
+      var markdown = questionInfo.question;
       var checkboxList = questionInfo.choices.map(item => {
         return (
           <div className="option-item">
@@ -146,8 +148,8 @@ class QuestionCard extends React.Component {
                 this.state.checkedAnswer === item.choice
                   ? true
                   : !this.state.checkedAnswer && item.choice === choiceSolution
-                    ? true
-                    : false
+                  ? true
+                  : false
               }
               onClick={() => {
                 this.questionChoiceHandle(item);
@@ -190,9 +192,12 @@ class QuestionCard extends React.Component {
             >
               第{questionId + 1}题
             </Typography>
-            <div className="question-title">
-              {questionInfo ? questionInfo.question : null}
-            </div>
+            {/* <div className="question-title">
+              {questionInfo ? markdown.toHTML(questionInfo.question) : null}
+            </div> */}
+            {questionInfo ? (
+              <ReactMarkdown source={markdown} escapeHtml={false} />
+            ) : null}
           </CardContent>
           <CardActions>
             <Button size="small">题目选项以及答题框:</Button>
@@ -203,6 +208,7 @@ class QuestionCard extends React.Component {
             id="outlined-multiline-flexible"
             label="答题框(选项的解释或者代码)"
             multiline
+            rowsMax="25"
             value={
               this.state.textAreaAnswer !== null
                 ? this.state.textAreaAnswer
