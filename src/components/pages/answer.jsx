@@ -9,6 +9,7 @@ import Divider from "@material-ui/core/Divider";
 import Button from "@material-ui/core/Button";
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import QuestionCard from "../plugin/question-card";
+import Loading from "../plugin/Loading";
 import "../../style/answer.css";
 import api from "../../api/index";
 import debounce from "../../utils/debounce";
@@ -42,9 +43,9 @@ const theme = createMuiTheme({
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    height: window.innerHeight - 64,
+    // height: window.innerHeight - 64,
     zIndex: 1,
-    overflow: "hidden",
+    overflow: "scroll",
     position: "relative",
     display: "flex"
   },
@@ -83,7 +84,9 @@ class Answer extends React.Component {
     questionId: 0,
     submitAnswerMessage: ``,
     choiceSolution: ``,
-    answerSolution: ``
+    answerSolution: ``,
+    loadingQuestionsStatus: true,
+    loadingQuestionDiffStatus: false
   };
 
   handleDrawerOpen = () => {
@@ -111,9 +114,16 @@ class Answer extends React.Component {
     });
     this.checkQuestionHasAnswer(number);
   };
+  hideLoading = () => {
+    this.setState({ loadingQuestionDiffStatus: false });
+  };
   async changeQuestionOrder(item) {
+    if (item !== 0) {
+      this.setState({ loadingQuestionDiffStatus: true });
+    }
     await this.displayQuestion(item);
     await this.checkQuestionHasAnswer(item);
+    await this.hideLoading();
   }
   /** 检查是否作答的函数 */
   checkQuestionHasAnswer = number => {
@@ -142,6 +152,11 @@ class Answer extends React.Component {
         this.setState({
           submitAnswerMessage: answer === null ? "本题作答成功" : "本题修改成功"
         });
+      } else {
+        this.setState({
+          choiceSolution: "",
+          answerSolution: ""
+        });
       }
     });
   };
@@ -164,7 +179,8 @@ class Answer extends React.Component {
           questionOrderArray: questionOrderArray,
           questionInfo: data,
           answerSumLength: data.questionSize,
-          questionId: 0
+          questionId: 0,
+          loadingQuestionsStatus: false
         });
       }
     });
@@ -172,6 +188,7 @@ class Answer extends React.Component {
   }
   render() {
     const { classes } = this.props;
+    // const { loadingQuestionsStatus, loadingQuestionDiffStatus } = this.state;
     const questionOrder = this.state.questionOrderArray.map(item => (
       <div key={item.order.toString()}>
         <Button
@@ -189,6 +206,8 @@ class Answer extends React.Component {
     ));
     return (
       <div className={classes.root}>
+        {this.state.loadingQuestionDiffStatus ? <Loading /> : null}
+        {this.state.loadingQuestionsStatus ? <Loading /> : null}
         <MuiThemeProvider theme={theme}>
           <AppBar position="absolute" className={classes.appBar}>
             <Toolbar>

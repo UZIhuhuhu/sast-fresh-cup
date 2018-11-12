@@ -127,7 +127,7 @@ class Login extends React.Component {
             callBack={this.loginErrorHandle}
           />
         ) : null}
-        <h2>登录</h2>
+        <h2 className="personal-title">登录</h2>
         <div className="form-container">
           <form className={classes.container} noValidate autoComplete="off">
             <div>

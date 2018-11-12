@@ -7,7 +7,7 @@
 /coverage
 
 # production
-/build
+build
 build.zip
 # misc
 .DS_Store
@@ -21,4 +21,5 @@ yarn-debug.log*
 yarn-error.log*
 
 src/**/*.css
+src/**/*.css.map
 /.vscode

@@ -123,7 +123,7 @@ class Personal extends React.Component {
             callBack={this.modifyAlertHandle}
           />
         ) : null}
-        <h2>个人信息</h2>
+        <h2 className="personal-title">个人信息</h2>
         <div className="form-container">
           <form className={classes.container} noValidate autoComplete="off">
             <div>
