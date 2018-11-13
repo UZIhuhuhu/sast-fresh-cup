@@ -23,7 +23,7 @@ export default class Homepage extends React.Component {
           <div className="title">
             点击
             <span className="homepage-font" onClick={this.navigateToRegister}>
-              注册
+              登录
             </span>
             报名参加本次比赛
           </div>
