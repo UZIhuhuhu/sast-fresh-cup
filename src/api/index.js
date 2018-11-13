@@ -1,5 +1,5 @@
 import axios from "axios";
-// axios.defaults.baseURL = `http://47.107.68.125:8088`;
+// axios.defaults.baseURL = `http://192.168.0.132:8088`;
 // axios.interceptors.request.use(
 //   config => {
 //     config.headers.authentication = localStorage.getItem("token");
@@ -113,6 +113,27 @@ class API {
       headers: {
         "Content-Type": "application/x-www-form-urlencoded",
         authentication: `${localStorage.getItem("token")}`
+      }
+    });
+  getNoticeList = () =>
+    instance.get(`v1/faq`, {
+      headers: {
+        "content-type": "application/json",
+        authentication: localStorage.getItem("token")
+      }
+    });
+  postNewNotice = postData =>
+    instance.post(`v1/faq`, postData, {
+      headers: {
+        "content-type": "application/json",
+        authentication: localStorage.getItem("token")
+      }
+    });
+  deleteNewNotice = id =>
+    instance.delete(`v1/faq/${id}`, {
+      headers: {
+        "content-type": "application/json",
+        authentication: localStorage.getItem("token")
       }
     });
 }

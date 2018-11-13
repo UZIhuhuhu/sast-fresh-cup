@@ -16,6 +16,7 @@ const ReactMarkdown = require("react-markdown/with-html");
 const styles = theme => ({
   card: {
     // minWidth: 275
+    overflow: "scroll"
   },
   bullet: {
     display: "inline-block",

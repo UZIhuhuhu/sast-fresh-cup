@@ -167,14 +167,14 @@ class Navigate extends React.Component {
                   >
                     登录
                   </Button>
-                  <Button
+                  {/* <Button
                     color="inherit"
                     onClick={() => {
                       this.navigateToPage(`register`);
                     }}
                   >
                     注册
-                  </Button>
+                  </Button> */}
                 </div>
               ) : (
                 <Button color="inherit" onClick={this.logOut}>
