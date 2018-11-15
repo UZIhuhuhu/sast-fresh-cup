@@ -1,5 +1,5 @@
 import React from "react";
-import Register from "./register";
+import Login from "./login";
 export default class Homepage extends React.Component {
   state = {
     navigateStatus: false
@@ -28,9 +28,8 @@ export default class Homepage extends React.Component {
             报名参加本次比赛
           </div>
         </div>
-        {this.state.navigateStatus === true ? <Register /> : null}
+        {this.state.navigateStatus ? <Login /> : null}
       </div>
     );
   }
 }
-

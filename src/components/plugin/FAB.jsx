@@ -2,7 +2,7 @@ import React from "react";
 import PropTypes from "prop-types";
 import { withStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
-import EditIcon from "@material-ui/icons/Edit";
+import Done from "@material-ui/icons/Done";
 
 const styles = theme => ({
   button: {
@@ -23,13 +23,13 @@ class FAB extends React.Component {
     return (
       <div className="fab-container">
         <Button
-          variant="fab"
-          color="secondary"
-          aria-label="Edit"
+          variant="contained"
+          color="primary"
           className={classes.button}
           onClick={this.navigateToNextQuestion}
         >
-          <EditIcon />
+          提交本题答案
+          <Done className={classes.rightIcon}>send</Done>
         </Button>
       </div>
     );

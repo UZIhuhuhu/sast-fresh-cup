@@ -11,12 +11,18 @@ import TextField from "@material-ui/core/TextField";
 import FAB from "../plugin/FAB";
 import Alert from "../plugin/alert";
 import api from "../../api/index";
+import hljs from "highlight.js";
 import "../../style/index.css";
+import "../../style/highlight.css";
+import SnackBar from "../plugin/SnackBar";
 const ReactMarkdown = require("react-markdown/with-html");
 const styles = theme => ({
   card: {
     // minWidth: 275
-    overflow: "scroll"
+    overflow: "scroll",
+    whiteSpace: "normal",
+    fontSize: 17,
+    lineHeight: 2
   },
   bullet: {
     display: "inline-block",
@@ -53,10 +59,6 @@ const textarea = {
   marginBottom: `2rem`
 };
 class QuestionCard extends React.Component {
-  // constructor(props) {
-  //   super(props);
-  //   this.answerTextField = React.createRef();
-  // }
   state = {
     checked: true,
     title: ``,
@@ -118,6 +120,12 @@ class QuestionCard extends React.Component {
     }
   };
   componentDidUpdate(prevProps) {
+    const els = document.querySelectorAll("pre code");
+    for (let i = 0; i < els.length; i++) {
+      if (!els[i].classList.contains("hljs")) {
+        hljs.highlightBlock(els[i]);
+      }
+    }
     if (this.props.questionInfo !== prevProps.questionInfo) {
       this.setState({ textAreaAnswer: null });
     }
@@ -163,6 +171,7 @@ class QuestionCard extends React.Component {
     }
     return (
       <div>
+        <SnackBar />
         {this.state.emptyAnswerStatus ? (
           <Alert
             hintMessage={
@@ -201,7 +210,7 @@ class QuestionCard extends React.Component {
             ) : null}
           </CardContent>
           <CardActions>
-            <Button size="small">题目选项以及答题框:</Button>
+            <Button size="big">题目选项以及答题框:</Button>
           </CardActions>
           {questionInfo ? checkboxList : null}
 

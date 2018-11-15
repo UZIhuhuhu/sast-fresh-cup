@@ -11,39 +11,26 @@ import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 import QuestionCard from "../plugin/question-card";
 import Loading from "../plugin/Loading";
 import "../../style/answer.css";
+
 import api from "../../api/index";
 import debounce from "../../utils/debounce";
 const drawerWidth = 240;
 const theme = createMuiTheme({
   overrides: {
-    // Name of the component ⚛️ / style sheet
-    MuiButton: {
-      // Name of the rule
-      root: {
-        // Some CSS
-        // background: "#2979ff"
-        // borderRadius: 3,
-        // border: 0,
-        // color: "white",
-        // height: 48,
-        // padding: "0 30px",
-        // boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)"
-      }
-    }
+    MuiButton: {}
   },
   palette: {
     primary: {
-      main: `#90caf9`
+      main: `#80cbc4`
     },
     secondary: {
-      main: "#bbdefb"
+      main: "#4db6ac"
     }
   }
 });
 const styles = theme => ({
   root: {
     flexGrow: 1,
-    // height: window.innerHeight - 64,
     zIndex: 1,
     overflow: "scroll",
     position: "relative",
@@ -71,7 +58,8 @@ const styles = theme => ({
   }
 });
 const brightFont = {
-  fontWeight: 700
+  fontWeight: 700,
+  cursor: "pointer"
 };
 
 class Answer extends React.Component {
@@ -112,7 +100,7 @@ class Answer extends React.Component {
         this.setState({ questionInfo: data, questionId: number });
       }
     });
-    this.checkQuestionHasAnswer(number);
+    // this.checkQuestionHasAnswer(number);
   };
   hideLoading = () => {
     this.setState({ loadingQuestionDiffStatus: false });
@@ -150,7 +138,7 @@ class Answer extends React.Component {
           });
         }
         this.setState({
-          submitAnswerMessage: answer === null ? "本题作答成功" : "本题修改成功"
+          submitAnswerMessage: answer ? "本题作答成功" : "本题修改成功"
         });
       } else {
         this.setState({
@@ -194,7 +182,9 @@ class Answer extends React.Component {
         <Button
           className={classes.button}
           // eslint-disable-next-line
-          className="questionOrderButton"
+          className={
+            item.answerStatus ? "questionOrderButtonRed" : "questionOrderButton"
+          }
           onClick={debounce(() => {
             this.changeQuestionOrder(item.order);
           })}

@@ -15,20 +15,22 @@ import Personal from "./personal";
 import Answer from "./answer";
 import Admin from "./admin";
 import Correct from "./correct";
+
 import { MuiThemeProvider, createMuiTheme } from "@material-ui/core/styles";
 const theme = createMuiTheme({
   palette: {
     primary: {
-      main: `#2196f3`
+      main: `#26a69a`
     },
     secondary: {
-      main: "#42a5f5"
+      main: "#4db6ac"
     }
   }
 });
 const styles = {
   root: {
-    flexGrow: 1
+    flexGrow: 1,
+    height: 80
   },
   grow: {
     flexGrow: 1
@@ -36,6 +38,9 @@ const styles = {
   menuButton: {
     marginLeft: -12,
     marginRight: 20
+  },
+  navRoot: {
+    height: 80
   }
 };
 class Navigate extends React.Component {
@@ -47,7 +52,10 @@ class Navigate extends React.Component {
   showAdminOrStudentNavigationBar = () => {
     this.setState({
       isAdminName:
-        localStorage.getItem("authority") === `ROLE_ADMIN` ? `admin` : `user`
+        localStorage.getItem("authority") === `ROLE_ADMIN` ||
+        localStorage.getItem("authority") === `root`
+          ? `admin`
+          : `user`
     });
   };
   /** 导航页面的函数 */
@@ -73,7 +81,7 @@ class Navigate extends React.Component {
     localStorage.clear();
     this.setState({
       isUserLoginStatus: false,
-      isAdminName: ``
+      isAdminName: 0
     });
     this.navigateToPage(`homepage`);
   };
@@ -85,14 +93,16 @@ class Navigate extends React.Component {
   componentDidMount() {
     this.changeNavigationBar();
     this.navigateToPage(`personal`);
+    setInterval(() => {});
   }
   render() {
     const { classes } = this.props;
     return (
       <div className="navigate-wrapper">
+
         <MuiThemeProvider theme={theme}>
-          <AppBar position="static">
-            <Toolbar theme={theme}>
+          <AppBar position="static" className={classes.navRoot}>
+            <Toolbar className={classes.navRoot}>
               <IconButton
                 className={classes.menuButton}
                 color="inherit"
@@ -145,6 +155,14 @@ class Navigate extends React.Component {
                     >
                       后台管理
                     </Button>
+                    <Button
+                      color="inherit"
+                      onClick={() => {
+                        this.navigateToPage(`register`);
+                      }}
+                    >
+                      注册
+                    </Button>
                   </div>
                 ) : (
                   <Button
@@ -167,14 +185,6 @@ class Navigate extends React.Component {
                   >
                     登录
                   </Button>
-                  {/* <Button
-                    color="inherit"
-                    onClick={() => {
-                      this.navigateToPage(`register`);
-                    }}
-                  >
-                    注册
-                  </Button> */}
                 </div>
               ) : (
                 <Button color="inherit" onClick={this.logOut}>
