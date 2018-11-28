@@ -27,5 +27,5 @@
     "eject": "react-scripts eject",
     "build-css": "node-sass-chokidar src/ -o src/"
   },
-  "proxy": "http://192.168.0.132:8088"
+  "proxy": "http://118.89.35.23/"
 }
